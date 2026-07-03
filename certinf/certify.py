@@ -157,8 +157,9 @@ def certify_sample(
     for P in P_list:
         escalation_trace.append(P)
         exact.set_precision(P)
-        E._GELU_C = None   # invalidate stale sqrt(2/pi) cache (Task 0.2's
-                           # precision-keyed fix is not yet in this tree)
+        E._GELU_C = None   # dead backward-compat shim (Task 0.2 landed the
+                           # precision-keyed cache in ival_ext.py; this is a
+                           # harmless no-op, left belt-and-braces)
 
         if run_canary and canary_result is None:
             # Once per sample (this module's chosen granularity — Task 1.3's

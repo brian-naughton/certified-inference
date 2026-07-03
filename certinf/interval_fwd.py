@@ -128,13 +128,7 @@ def interval_forward(seq_len: int, n_logits: int = 200,
     # exp/tanh fast paths are auditable from the artifact JSON alone.
     stats["guard_audit"] = []
     scale = exact._SCALE
-    stats["guard_thresholds"] = {
-        "precision_bits": exact.PRECISION,
-        # softmax exp fast path fires when a shifted arg <= -exp_thr (real units)
-        "exp_underflow_x": -float(Fraction(E.exp_guard_threshold(), scale)),
-        # tanh saturation fires when |inner| >= tanh_thr (real units)
-        "tanh_saturation_x": float(Fraction(E.tanh_guard_threshold(), scale)),
-    }
+    stats["guard_thresholds"] = E.guard_audit_block()
 
     def _snap(layer: int) -> None:
         tk = E.get_tracking()
@@ -264,7 +258,8 @@ if __name__ == "__main__":
     prec = int(sys.argv[2]) if len(sys.argv) > 2 else 96
     nlog = int(sys.argv[3]) if len(sys.argv) > 3 else 200
     exact.set_precision(prec)
-    E._GELU_C = None   # invalidate cached constant
+    E._GELU_C = None   # dead backward-compat shim (Task 0.2: precision-keyed
+                       # cache in ival_ext.py; harmless no-op, belt-and-braces)
     print(f"=== interval forward: seq_len={seq}, precision={prec} bits, "
           f"n_logits={nlog} ===")
     st = interval_forward(seq, n_logits=nlog)

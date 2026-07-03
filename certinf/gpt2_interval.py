@@ -241,11 +241,7 @@ def interval_forward_gpt2(ids: List[int], n_logits: str = "auto",
            for t, i in enumerate(ids)]
 
     stats = {"sublayer": [], "guard_audit": [], "layer_times_s": []}
-    stats["guard_thresholds"] = {
-        "precision_bits": exact.PRECISION,
-        "exp_underflow_x": -float(Fraction(E.exp_guard_threshold(), scale)),
-        "tanh_saturation_x": float(Fraction(E.tanh_guard_threshold(), scale)),
-    }
+    stats["guard_thresholds"] = E.guard_audit_block()
 
     def record(label, r):
         mx, md = wstats(r)

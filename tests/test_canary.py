@@ -59,11 +59,16 @@ def test_canary_trips_on_realistic_finite_floor(monkeypatch):
 
 @pytest.mark.canary
 def test_canary_run_resets_stale_gelu_constant():
-    """I3(chunk2) regression: canary._run must invalidate the precision-keyed
-    sqrt(2/pi) GELU cache after set_precision, else the 2P forward reuses the
-    P-bit constant (a self-injected floor). Poison the cache at P=32, run at
-    P=64, and confirm the run recomputed the constant at the current
-    precision."""
+    """I3(chunk2) regression, adapted for Task 0.2's precision-keyed cache
+    (certinf/ival_ext.py): sqrt(2/pi) is now memoised per precision in
+    E._GELU_C_CACHE, so a value computed at one precision can never leak into
+    a run at another -- there is no single-slot cache left to poison or
+    invalidate. The old module-global E._GELU_C is now a dead backward-compat
+    shim: call sites (including canary._run) still poke it, but poking it has
+    no effect on the actual computation. Confirm both: (a) poking the shim
+    does not perturb the real per-precision cache, and (b) canary._run at
+    P=64 populates/uses the CURRENT-precision constant, distinct from the
+    P=32 one computed moments earlier."""
     import certinf.ival_ext as E
     from certinf import exact
 
@@ -72,14 +77,13 @@ def test_canary_run_resets_stale_gelu_constant():
 
     ids = [7454, 2402, 257, 640]
     exact.set_precision(32)
-    E._GELU_C = None
     stale = endpoints(E.gelu_const_ival())   # the P=32 constant's endpoints
-    E._GELU_C = E.gelu_const_ival()          # poison the cache with it
+    E._GELU_C = "poisoned-dead-shim"         # poking the shim must be inert
 
     canary._run("tinystories", ids, P=64)
 
     exact.set_precision(64)
-    assert E._GELU_C is not None
+    assert 64 in E._GELU_C_CACHE
     # Ival has no __eq__ (identity only), so compare endpoints explicitly.
-    assert endpoints(E._GELU_C) != stale                    # not the P=32 value
-    assert endpoints(E._GELU_C) == endpoints(E.gelu_const_ival())  # current P
+    assert endpoints(E._GELU_C_CACHE[64]) != stale                    # not the P=32 value
+    assert endpoints(E._GELU_C_CACHE[64]) == endpoints(E.gelu_const_ival())  # current P

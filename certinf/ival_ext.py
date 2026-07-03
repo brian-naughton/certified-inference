@@ -121,6 +121,20 @@ def tanh_guard_threshold() -> int:
     return _ceil_div((_P() + 2) * _LN2_UP_NUM * _S(), 2 * _LN2_UP_DEN)
 
 
+def guard_audit_block() -> dict:
+    """The `guard_thresholds` cert block (precision, exp/tanh fast-path
+    triggers in real units), standardised so `interval_fwd` and
+    `gpt2_interval` emit an identical, single-source-of-truth block."""
+    S = _S()
+    return {
+        "precision_bits": _P(),
+        # softmax exp fast path fires when a shifted arg <= -exp_thr (real units)
+        "exp_underflow_x": -float(Fraction(exp_guard_threshold(), S)),
+        # tanh saturation fires when |inner| >= tanh_thr (real units)
+        "tanh_saturation_x": float(Fraction(tanh_guard_threshold(), S)),
+    }
+
+
 # --- artifact instrumentation: track guard-relevant endpoint ranges -------- #
 # So guard activation is auditable from the width JSON (requested during adversarial review). Plain
 # module-level accumulators; interval_fwd resets them per layer and snapshots.
@@ -270,17 +284,37 @@ def gelu_const_ival() -> Ival:
     return Ival(lo, hi)
 
 
+_GELU_C_CACHE: dict[int, Ival] = {}   # precision bits -> sqrt(2/pi) enclosure
+
+# Backward-compat shim: some call sites (interval_fwd.__main__, sweep.main,
+# canary._run, certify.py, gpt2_interval.__main__) still do `E._GELU_C = None`
+# after set_precision, a habit from the old single-slot cache. That statement
+# is now a harmless no-op — the real cache below is keyed to the live
+# precision, so set_precision() alone suffices and no external invalidation
+# is ever required. Left in place at those call sites (belt and braces).
 _GELU_C: Ival | None = None
 _HALF = Fraction(1, 2)
 
 
+def _gelu_c() -> Ival:
+    """sqrt(2/pi) enclosure at the CURRENT precision, memoised per precision.
+
+    Keying the memo to exact.PRECISION means set_precision() alone suffices;
+    no caller ever needs to invalidate a stale constant (the old module-global
+    _GELU_C required manual `E._GELU_C = None`, a latent inward-bound hazard).
+    """
+    p = _P()
+    c = _GELU_C_CACHE.get(p)
+    if c is None:
+        c = gelu_const_ival()
+        _GELU_C_CACHE[p] = c
+    return c
+
+
 def gelu_new_ival(x: Ival) -> Ival:
     """gelu_new(x) = 0.5*x*(1 + tanh(sqrt(2/pi)*(x + 0.044715*x^3)))."""
-    global _GELU_C
-    if _GELU_C is None:
-        _GELU_C = gelu_const_ival()
     x3 = square_ival(x) * x
-    inner = (x + x3.mul_scalar(_GELU_A)) * _GELU_C
+    inner = (x + x3.mul_scalar(_GELU_A)) * _gelu_c()
     # record the tanh-input endpoint range so tanh-saturation guard activation
     # is auditable from artifacts (requested during adversarial review)
     _track_minmax("gelu_inner_min", "gelu_inner_max", inner.lo_i)
