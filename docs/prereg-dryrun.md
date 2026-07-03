@@ -151,7 +151,66 @@ observation. This section re-runs the determinism gate at the frozen context
 length (16), with the exact command shape the headline harness invocation
 takes, over five repetitions on seven distinct prompts from the pinned corpus.
 
-### 4.1 Implementation transcript
+### 4.1 Runnable CLI invocation (authoritative)
+
+The determinism gate is a genuinely-runnable CLI (`certinf.harness` has a real
+`argparse __main__`). The command below was executed verbatim against the pinned
+headline corpus `certificates/corpora/tinystories-val.ids.json` at context
+length 16 (its first 12 ctx-16 windows are bit-identical to the dry-run subset,
+so prompts `[0, 1, 3, 5, 7, 9, 10]` are the same token windows as before):
+
+```
+$ BIN=data/hf_cache/models--roneneldan--TinyStories-1M/snapshots/77f1b168e219585646439073245fe87e56b3023e/pytorch_model.bin
+$ python3.11 -m certinf.harness --model tinystories --weights "$BIN" \
+    --corpus certificates/corpora/tinystories-val.ids.json --context-length 16 \
+    --prompt-index 0 --prompt-index 1 --prompt-index 3 --prompt-index 5 \
+    --prompt-index 7 --prompt-index 9 --prompt-index 10 --reps 5
+### implementation transcript
+{
+ "checkpoint_sha256": "07f9609ea882b8163ff3b23d40e2b82cb715d409631beb15c84b164f3877dae7",
+ "command_line": "python3.11 -m certinf.harness --model tinystories --weights pytorch_model.bin --corpus tinystories-val.ids.json --context-length 16",
+ "deterministic_flags": {
+  "cuda_matmul_allow_tf32": false,
+  "use_deterministic_algorithms": true
+ },
+ "eval_mode": true,
+ "os": "Darwin 22.6.0",
+ "platform": "macOS-13.7.8-arm64-arm-64bit",
+ "python": "3.11.14 (main, Oct 12 2025, 19:18:13) [Clang 14.0.3 (clang-1403.0.22.14.1)]",
+ "tf32": false,
+ "torch_version": "2.11.0"
+}
+transcript_sha256: b4e2fa62eb3a242a4993ede2fde10be2d39b1aa166da06ebeb6d790f085f0358
+
+=== determinism gate: 5 repetitions x 7 distinct prompts (ctx=16) ===
+  prompt_index= 0  top1 x5 = [1097, 1097, 1097, 1097, 1097]  -> DETERMINISTIC
+  prompt_index= 1  top1 x5 = [11254, 11254, 11254, 11254, 11254]  -> DETERMINISTIC
+  prompt_index= 3  top1 x5 = [2227, 2227, 2227, 2227, 2227]  -> DETERMINISTIC
+  prompt_index= 5  top1 x5 = [27498, 27498, 27498, 27498, 27498]  -> DETERMINISTIC
+  prompt_index= 7  top1 x5 = [1239, 1239, 1239, 1239, 1239]  -> DETERMINISTIC
+  prompt_index= 9  top1 x5 = [340, 340, 340, 340, 340]  -> DETERMINISTIC
+  prompt_index=10  top1 x5 = [13, 13, 13, 13, 13]  -> DETERMINISTIC
+
+VERDICT: DETERMINISTIC across all prompts (A1 CI-D gate PASSES)
+[exit code: 0]
+```
+
+The `command_line` embedded in the transcript is canonicalised to basenames
+(environment-independent, so the transcript sha does not depend on absolute
+cache/checkout paths); the shell line above is the concrete, runnable form. The
+recomputed `transcript_sha256` is
+`b4e2fa62eb3a242a4993ede2fde10be2d39b1aa166da06ebeb6d790f085f0358` and the
+per-prompt top-1 tokens are bit-identical to the superseded hand-run below —
+independent confirmation that the pinned harness is deterministic at the frozen
+conditions and reproducible from the committed CLI.
+
+### 4.2 Superseded — original hand-run transcript (pre-CLI)
+
+*The entry below is retained for history and is **superseded** by §4.1. It was
+produced by an ad-hoc harness call before `certinf.harness` had a runnable
+`__main__`, so its recorded `command_line` was not directly executable at the
+time. §4.1 re-records the identical transcript sha and results under the genuine
+CLI.*
 
 ```
 {
@@ -170,8 +229,6 @@ takes, over five repetitions on seven distinct prompts from the pinned corpus.
 }
 transcript_sha256: b4e2fa62eb3a242a4993ede2fde10be2d39b1aa166da06ebeb6d790f085f0358
 ```
-
-### 4.2 Results
 
 ```
 === determinism gate: 5 repetitions x 7 distinct prompts (ctx=16) ===
