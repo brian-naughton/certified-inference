@@ -55,3 +55,9 @@ Per-family points used in the fit:
   session's budget). It remains open for the Phase 1 gate proper.
 - TinyStories-1M as headline: **confirmed** by this grid's P profile and
   zero-abstention behaviour.
+
+## Caveats (added post-review, 2026-07-03)
+
+- **Provenance/verification status:** these records were produced by the pre-review-fix engine build. The one Critical review finding was GPT-2-specific (no GPT-2 cells ran here) and the GELU-cache change is equivalent to the per-step invalidation the certifier already performed, so the TinyStories figures are believed unaffected — but they have not yet been re-derived by the independent checker (Task 0.8). Treat as provisional until that pass runs.
+- **`peak_rss_mb` is a process-lifetime peak** (`ru_maxrss` within reused pool workers), not per-sample memory: later samples inherit earlier peaks. Diagnostic only.
+- The `r2 = 1.0000` on the single-family fit is definitional (one point), not a fit-quality claim — see the degeneracy note above.
