@@ -1,0 +1,16 @@
+# Downloaded model weights / HF cache — fetch via README.md "Reproduce"
+data/
+
+# Reproduction runs write their width JSON / sweep results to the repo
+# root by default; the curated copies live under evidence/.
+/widths_*.json
+/sweep_results.json
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# OS
+.DS_Store

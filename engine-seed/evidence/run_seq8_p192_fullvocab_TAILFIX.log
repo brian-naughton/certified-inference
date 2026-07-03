@@ -1,0 +1,124 @@
+=== interval forward: seq_len=8, precision=192 bits, n_logits=-1 ===
+[   0.2s] weights converted
+[   0.2s] embed                      max_w 0.000e+00  med_w 0.000e+00
+[   0.2s] L0.ln_1                    max_w 6.372e-58  med_w 3.186e-58
+[   0.3s] L0.attn(pre-proj)          max_w 5.289e-56  med_w 1.975e-56
+[   0.3s] L0.resid+attn              max_w 4.477e-56  med_w 2.955e-56
+[   0.3s] L0.ln_2                    max_w 1.991e-54  med_w 8.195e-55
+[   0.4s] L0.gelu                    max_w 1.546e-54  med_w 6.906e-55
+[   0.5s] L0.resid+mlp  [LAYER 0]    max_w 4.924e-54  med_w 3.404e-54
+[   0.5s] L1.ln_1                    max_w 3.120e-52  med_w 1.194e-52
+[   0.5s] L1.attn(pre-proj)          max_w 4.652e-51  med_w 5.222e-52
+[   0.5s] L1.resid+attn              max_w 1.727e-51  med_w 7.841e-52
+[   0.5s] L1.ln_2                    max_w 9.217e-50  med_w 2.482e-50
+[   0.7s] L1.gelu                    max_w 5.022e-50  med_w 1.788e-50
+[   0.7s] L1.resid+mlp  [LAYER 1]    max_w 1.119e-49  med_w 7.378e-50
+[   0.7s] L2.ln_1                    max_w 1.234e-47  med_w 2.764e-48
+[   0.7s] L2.attn(pre-proj)          max_w 1.129e-45  med_w 1.037e-46
+[   0.7s] L2.resid+attn              max_w 4.956e-46  med_w 2.506e-46
+[   0.7s] L2.ln_2                    max_w 3.443e-44  med_w 1.179e-44
+[   0.9s] L2.gelu                    max_w 2.488e-44  med_w 8.384e-45
+[   0.9s] L2.resid+mlp  [LAYER 2]    max_w 5.487e-44  med_w 3.301e-44
+[   0.9s] L3.ln_1                    max_w 6.765e-42  med_w 1.811e-42
+[   1.0s] L3.attn(pre-proj)          max_w 5.007e-40  med_w 2.361e-41
+[   1.0s] L3.resid+attn              max_w 1.042e-40  med_w 4.276e-41
+[   1.0s] L3.ln_2                    max_w 1.220e-38  med_w 3.928e-39
+[   1.1s] L3.gelu                    max_w 8.378e-39  med_w 3.027e-39
+[   1.1s] L3.resid+mlp  [LAYER 3]    max_w 1.977e-38  med_w 1.114e-38
+[   1.1s] L4.ln_1                    max_w 3.937e-36  med_w 1.179e-36
+[   1.2s] L4.attn(pre-proj)          max_w 8.874e-35  med_w 8.080e-36
+[   1.2s] L4.resid+attn              max_w 2.022e-35  med_w 9.382e-36
+[   1.2s] L4.ln_2                    max_w 4.120e-33  med_w 1.148e-33
+[   1.3s] L4.gelu                    max_w 2.861e-33  med_w 8.757e-34
+[   1.3s] L4.resid+mlp  [LAYER 4]    max_w 5.654e-33  med_w 2.927e-33
+[   1.3s] L5.ln_1                    max_w 1.420e-30  med_w 3.824e-31
+[   1.4s] L5.attn(pre-proj)          max_w 1.216e-29  med_w 1.823e-30
+[   1.4s] L5.resid+attn              max_w 4.255e-30  med_w 1.942e-30
+[   1.4s] L5.ln_2                    max_w 8.339e-28  med_w 2.668e-28
+[   1.5s] L5.gelu                    max_w 7.318e-28  med_w 1.858e-28
+[   1.6s] L5.resid+mlp  [LAYER 5]    max_w 1.200e-27  med_w 6.256e-28
+[   1.6s] L6.ln_1                    max_w 2.566e-25  med_w 7.314e-26
+[   1.6s] L6.attn(pre-proj)          max_w 6.590e-24  med_w 5.675e-25
+[   1.6s] L6.resid+attn              max_w 1.966e-24  med_w 8.203e-25
+[   1.6s] L6.ln_2                    max_w 5.384e-22  med_w 1.432e-22
+[   1.8s] L6.gelu                    max_w 3.480e-22  med_w 1.078e-22
+[   1.8s] L6.resid+mlp  [LAYER 6]    max_w 7.982e-22  med_w 3.788e-22
+[   1.8s] L7.ln_1                    max_w 2.049e-19  med_w 5.634e-20
+[   1.8s] L7.attn(pre-proj)          max_w 2.897e-18  med_w 3.895e-19
+[   1.8s] L7.resid+attn              max_w 1.254e-18  med_w 4.764e-19
+[   1.8s] L7.ln_2                    max_w 3.463e-16  med_w 1.048e-16
+[   2.0s] L7.gelu                    max_w 3.046e-16  med_w 9.033e-17
+[   2.0s] L7.resid+mlp  [LAYER 7]    max_w 8.083e-16  med_w 4.166e-16
+[   2.0s] ln_f(last pos)             max_w 3.306e-13  med_w 1.573e-13
+[   4.7s] 50257 logits computed
+{
+ "chosen": "FULL VOCAB (50257)",
+ "widths_max": 1.9122272823905505e-12,
+ "widths_med": 8.429931236211174e-13,
+ "gap_top1_top2": 1.0132480248468099,
+ "ratio_maxw_over_gap": 1.887225275055093e-12,
+ "top10": [
+  [
+   2576,
+   17.395560822232284,
+   17.395560822231612,
+   17.39556082223295
+  ],
+  [
+   2933,
+   16.382312797385474,
+   16.38231279738483,
+   16.38231279738611
+  ],
+  [
+   6512,
+   13.342419630246276,
+   13.34241963024569,
+   13.34241963024685
+  ],
+  [
+   44915,
+   13.22520591061346,
+   13.22520591061292,
+   13.22520591061401
+  ],
+  [
+   6842,
+   13.105892518967124,
+   13.10589251896656,
+   13.105892518967682
+  ],
+  [
+   21264,
+   12.233295258015378,
+   12.233295258014858,
+   12.233295258015916
+  ],
+  [
+   22746,
+   12.230464662060516,
+   12.230464662059942,
+   12.2304646620611
+  ],
+  [
+   10211,
+   11.90862443828933,
+   11.908624438288749,
+   11.90862443828991
+  ],
+  [
+   22045,
+   11.774325127057015,
+   11.774325127056475,
+   11.774325127057557
+  ],
+  [
+   5916,
+   11.674575481377579,
+   11.67457548137704,
+   11.67457548137815
+  ]
+ ],
+ "argmax_certified_among_chosen": true
+}
+runtime 4.8s

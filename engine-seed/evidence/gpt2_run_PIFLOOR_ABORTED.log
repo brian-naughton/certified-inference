@@ -1,0 +1,63 @@
+=== GPT-2 small interval forward: seq_len=8, precision=384 bits, competitors=auto ===
+prompt ids: [464, 2068, 7586, 21831, 18045, 625, 262, 16931]
+[self-test] exact conversion + dot enclosure: OK
+[    0.0s] embed                      max_w 0.000e+00  med_w 0.000e+00
+[    2.2s] L0.ln_1                    max_w 6.091e-115  med_w 5.076e-116
+[    5.6s] L0.attn(pre-proj)          max_w 9.052e-112  med_w 2.714e-113
+[    6.7s] L0.resid+attn              max_w 2.737e-110  med_w 9.208e-112
+[    6.7s] L0.ln_2                    max_w 9.498e-111  med_w 2.270e-111
+[   17.3s] L0.gelu                    max_w 4.047e-62  med_w 2.257e-62
+[   21.6s] L0.resid+mlp  [LAYER 0]    max_w 1.433e-59  med_w 4.000e-60
+[decision] layer 0 took 22s; projected total ~319s -> FULL 50,257-vocab competitor set
+[   23.6s] L1.ln_1                    max_w 6.024e-60  med_w 9.626e-61
+[   27.1s] L1.attn(pre-proj)          max_w 7.028e-57  med_w 2.580e-58
+[   28.2s] L1.resid+attn              max_w 2.931e-55  med_w 2.353e-56
+[   28.2s] L1.ln_2                    max_w 4.723e-56  med_w 6.684e-57
+[   38.3s] L1.gelu                    max_w 1.378e-54  med_w 2.014e-55
+[   42.5s] L1.resid+mlp  [LAYER 1]    max_w 2.832e-52  med_w 3.991e-53
+[   44.8s] L2.ln_1                    max_w 2.199e-52  med_w 1.107e-53
+[   48.1s] L2.attn(pre-proj)          max_w 2.007e-49  med_w 4.395e-51
+[   49.2s] L2.resid+attn              max_w 4.780e-48  med_w 3.527e-49
+[   49.2s] L2.ln_2                    max_w 1.138e-48  med_w 1.207e-49
+[   60.1s] L2.gelu                    max_w 3.852e-47  med_w 2.836e-48
+[   64.4s] L2.resid+mlp  [LAYER 2]    max_w 8.873e-45  med_w 6.660e-46
+[   66.4s] L3.ln_1                    max_w 9.535e-45  med_w 2.106e-46
+[   69.8s] L3.attn(pre-proj)          max_w 8.198e-42  med_w 7.266e-44
+[   70.9s] L3.resid+attn              max_w 1.691e-40  med_w 6.109e-42
+[   71.0s] L3.ln_2                    max_w 3.344e-41  med_w 2.162e-42
+[   81.7s] L3.gelu                    max_w 1.249e-39  med_w 4.574e-41
+[   85.9s] L3.resid+mlp  [LAYER 3]    max_w 4.124e-37  med_w 9.832e-39
+[   88.0s] L4.ln_1                    max_w 2.756e-37  med_w 3.553e-39
+[   91.4s] L4.attn(pre-proj)          max_w 7.460e-34  med_w 9.441e-37
+[   92.5s] L4.resid+attn              max_w 9.352e-33  med_w 1.321e-34
+[   92.6s] L4.ln_2                    max_w 1.648e-33  med_w 4.237e-35
+[  103.1s] L4.gelu                    max_w 5.606e-32  med_w 9.022e-34
+[  107.4s] L4.resid+mlp  [LAYER 4]    max_w 1.530e-29  med_w 1.983e-31
+[  109.5s] L5.ln_1                    max_w 1.080e-29  med_w 8.916e-32
+[  112.9s] L5.attn(pre-proj)          max_w 2.401e-27  med_w 8.155e-30
+[  114.0s] L5.resid+attn              max_w 6.159e-26  med_w 6.720e-28
+[  114.0s] L5.ln_2                    max_w 1.878e-26  med_w 2.423e-28
+[  124.5s] L5.gelu                    max_w 4.338e-25  med_w 4.486e-27
+[  128.8s] L5.resid+mlp  [LAYER 5]    max_w 1.230e-22  med_w 9.095e-25
+[  130.9s] L6.ln_1                    max_w 1.026e-22  med_w 4.417e-25
+[  134.3s] L6.attn(pre-proj)          max_w 1.851e-20  med_w 5.009e-23
+[  135.3s] L6.resid+attn              max_w 5.691e-19  med_w 3.080e-21
+[  135.4s] L6.ln_2                    max_w 1.810e-19  med_w 1.069e-21
+[  145.7s] L6.gelu                    max_w 3.629e-18  med_w 1.769e-20
+[  150.0s] L6.resid+mlp  [LAYER 6]    max_w 9.928e-16  med_w 4.176e-18
+[  152.2s] L7.ln_1                    max_w 8.251e-16  med_w 2.405e-18
+[  155.6s] L7.attn(pre-proj)          max_w 3.155e-13  med_w 1.590e-16
+[  156.6s] L7.resid+attn              max_w 9.253e-12  med_w 8.343e-15
+[  156.7s] L7.ln_2                    max_w 1.988e-12  med_w 2.713e-15
+[  167.1s] L7.gelu                    max_w 3.795e-11  med_w 4.726e-14
+[  171.4s] L7.resid+mlp  [LAYER 7]    max_w 1.167e-08  med_w 1.245e-11
+[  173.6s] L8.ln_1                    max_w 8.302e-09  med_w 9.554e-12
+[  177.1s] L8.attn(pre-proj)          max_w 4.919e-06  med_w 7.646e-10
+[  178.1s] L8.resid+attn              max_w 1.048e-04  med_w 3.743e-08
+[  178.2s] L8.ln_2                    max_w 1.839e-05  med_w 7.639e-09
+[  188.5s] L8.gelu                    max_w 4.261e-04  med_w 1.364e-07
+[  192.8s] L8.resid+mlp  [LAYER 8]    max_w 1.025e-01  med_w 4.075e-05
+[  194.9s] L9.ln_1                    max_w 5.573e-02  med_w 2.998e-05
+[  198.3s] L9.attn(pre-proj)          max_w 1.320e+01  med_w 1.694e-03
+[  199.3s] L9.resid+attn              max_w 1.176e+03  med_w 9.777e-02
+[  199.4s] L9.ln_2                    max_w 1.037e+05  med_w 1.507e-02

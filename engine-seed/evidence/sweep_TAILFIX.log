@@ -1,0 +1,47 @@
+=== E1 prompt sweep: 28 prompts, seq 8, P=192, FULL vocab ===
+opener/baseline    CERTIFIED gap  1.0132e+00  maxw 1.912e-12  headroom   38.95 bits  top1 'Ġgirl'        (4.5s)
+opener/one-day     CERTIFIED gap  3.0161e+00  maxw 3.180e-12  headroom   39.79 bits  top1 'Ġpark'        (4.5s)
+opener/girl-said   CERTIFIED gap  1.2951e+00  maxw 3.315e-12  headroom   38.51 bits  top1 'Ġto'          (4.4s)
+opener/tom-lily    CERTIFIED gap  3.4123e+00  maxw 1.100e-11  headroom   38.17 bits  top1 'Ġplay'        (4.5s)
+opener/red-ball    CERTIFIED gap  3.1727e-01  maxw 1.923e-12  headroom   37.26 bits  top1 'Ġpark'        (4.8s)
+opener/mom-said    CERTIFIED gap  2.3380e+00  maxw 3.699e-12  headroom   39.20 bits  top1 '.'            (4.5s)
+opener/sun         CERTIFIED gap  1.7537e+00  maxw 3.019e-12  headroom   39.08 bits  top1 'Ġsinging'     (4.5s)
+opener/anna        CERTIFIED gap  1.1266e+00  maxw 3.144e-12  headroom   38.38 bits  top1 '.'            (4.5s)
+frag/and-then      CERTIFIED gap  1.1605e-01  maxw 1.356e-12  headroom   36.32 bits  top1 'Ġball'        (4.4s)
+frag/because       CERTIFIED gap  5.2181e-01  maxw 4.222e-12  headroom   36.85 bits  top1 'Ġfriends'     (4.5s)
+frag/under-tree    CERTIFIED gap  1.1517e+00  maxw 2.321e-12  headroom   38.85 bits  top1 '.'            (4.5s)
+frag/said-cat      CERTIFIED gap  2.3051e+00  maxw 2.296e-12  headroom   39.87 bits  top1 '.'            (4.5s)
+frag/but-boy       CERTIFIED gap  3.1395e+00  maxw 2.456e-12  headroom   40.22 bits  top1 '.'            (4.5s)
+frag/with-friends  CERTIFIED gap  2.4526e+00  maxw 1.547e-12  headroom   40.53 bits  top1 '.'            (4.4s)
+degen/the-x8       CERTIFIED gap  1.8701e-01  maxw 5.944e-13  headroom   38.19 bits  top1 'Ġpark'        (4.4s)
+degen/comma-x8     CERTIFIED gap  5.4675e-01  maxw 3.149e-12  headroom   37.34 bits  top1 'ĠI'           (4.5s)
+degen/eot-x8       CERTIFIED gap  8.1404e-01  maxw 6.277e-13  headroom   40.24 bits  top1 'ĊĊ'           (4.4s)
+degen/girl-x8      CERTIFIED gap  6.8270e-01  maxw 9.850e-13  headroom   39.33 bits  top1 ','            (4.5s)
+degen/bang-x8      CERTIFIED gap  3.7200e-01  maxw 1.746e-12  headroom   37.63 bits  top1 'Ċ'            (4.4s)
+rare/mix-1         CERTIFIED gap  3.5880e-01  maxw 5.317e-13  headroom   39.30 bits  top1 'ose'          (4.6s)
+rare/mix-2         CERTIFIED gap  1.6151e+00  maxw 1.051e-12  headroom   40.48 bits  top1 '.'            (4.5s)
+rare/alt-common    CERTIFIED gap  1.0747e+00  maxw 8.531e-13  headroom   40.20 bits  top1 'Ġhad'         (4.5s)
+rare/high-ids      CERTIFIED gap  9.0306e-01  maxw 5.257e-12  headroom   37.32 bits  top1 ','            (4.5s)
+misc/digits        CERTIFIED gap  3.4194e-01  maxw 4.086e-13  headroom   39.61 bits  top1 'Ġfive'        (4.5s)
+misc/caps          CERTIFIED gap  4.5115e-01  maxw 1.662e-13  headroom   41.30 bits  top1 ','            (4.5s)
+misc/they-found    CERTIFIED gap  2.6416e+00  maxw 1.535e-12  headroom   40.65 bits  top1 '.'            (4.5s)
+misc/please-help   CERTIFIED gap  1.7043e+00  maxw 1.428e-12  headroom   40.12 bits  top1 '.'            (4.5s)
+misc/punct-heavy   CERTIFIED gap  5.0642e-01  maxw 6.847e-12  headroom   36.11 bits  top1 'Ċ'            (4.5s)
+--- seq-16 baseline prompt, FULL vocab ---
+seq16/baseline-fullvocab   CERTIFIED gap 1.3560e-01  maxw 7.415e-12  headroom 34.09 bits
+
+=== E1 quantile table (28 seq-8 prompts, headroom bits = log2(gap/max_width)) ===
+  n_prompts                28
+  n_certified              28
+  n_abstained              0
+  headroom_bits_min        36.106
+  headroom_bits_p10        37.138
+  headroom_bits_median     39.140
+  headroom_bits_p90        40.497
+  headroom_bits_max        41.303
+  max_logit_width_min      0.000
+  max_logit_width_max      0.000
+  total_guard_hits         0
+
+total sweep time 133s
+wrote sweep_results.json

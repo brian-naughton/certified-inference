@@ -1,0 +1,10 @@
+# The certified engine itself (exact.py, ival_ext.py) is pure Python
+# standard library — no dependencies. These are needed only for the
+# float32 reference forward passes and for fetching model weights.
+torch>=2
+huggingface_hub>=0.20
+
+# Optional: sharpens the multi-precision guard-soundness checks in
+# test_ext.py against arbitrary-precision truth. The suite falls back to a
+# self-consistency bracket (P vs P+64) if mpmath is not installed.
+mpmath>=1.3

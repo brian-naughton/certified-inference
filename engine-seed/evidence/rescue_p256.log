@@ -1,0 +1,60 @@
+[   0.2s] weights converted
+[   0.2s] embed                      max_w 0.000e+00  med_w 0.000e+00
+[   0.2s] L0.ln_1                    max_w 3.454e-77  med_w 1.727e-77
+[   0.3s] L0.attn(pre-proj)          max_w 8.779e-39  med_w 1.749e-75
+[   0.3s] L0.resid+attn              max_w 1.080e-39  med_w 1.646e-43
+[   0.3s] L0.ln_2                    max_w 2.608e-38  med_w 2.873e-41
+[   0.5s] L0.gelu                    max_w 3.453e-38  med_w 2.392e-41
+[   0.6s] L0.resid+mlp  [LAYER 0]    max_w 9.142e-38  med_w 1.481e-40
+[   0.6s] L1.ln_1                    max_w 4.890e-36  med_w 4.446e-39
+[   0.6s] L1.attn(pre-proj)          max_w 6.637e-35  med_w 3.920e-38
+[   0.6s] L1.resid+attn              max_w 2.182e-35  med_w 3.052e-37
+[   0.6s] L1.ln_2                    max_w 1.157e-33  med_w 8.739e-36
+[   0.8s] L1.gelu                    max_w 4.688e-34  med_w 5.411e-36
+[   0.9s] L1.resid+mlp  [LAYER 1]    max_w 1.315e-33  med_w 2.960e-35
+[   0.9s] L2.ln_1                    max_w 1.394e-31  med_w 9.506e-34
+[   0.9s] L2.attn(pre-proj)          max_w 9.649e-30  med_w 5.561e-33
+[   1.0s] L2.resid+attn              max_w 3.963e-30  med_w 8.432e-32
+[   1.0s] L2.ln_2                    max_w 2.731e-28  med_w 3.749e-30
+[   1.2s] L2.gelu                    max_w 1.610e-28  med_w 2.358e-30
+[   1.2s] L2.resid+mlp  [LAYER 2]    max_w 3.709e-28  med_w 1.229e-29
+[   1.2s] L3.ln_1                    max_w 4.714e-26  med_w 5.848e-28
+[   1.3s] L3.attn(pre-proj)          max_w 1.303e-24  med_w 3.757e-27
+[   1.3s] L3.resid+attn              max_w 5.153e-25  med_w 1.545e-26
+[   1.3s] L3.ln_2                    max_w 6.098e-23  med_w 1.221e-24
+[   1.5s] L3.gelu                    max_w 4.856e-23  med_w 9.961e-25
+[   1.5s] L3.resid+mlp  [LAYER 3]    max_w 9.697e-23  med_w 3.784e-24
+[   1.5s] L4.ln_1                    max_w 1.428e-20  med_w 3.633e-22
+[   1.6s] L4.attn(pre-proj)          max_w 3.709e-19  med_w 9.442e-22
+[   1.6s] L4.resid+attn              max_w 7.965e-20  med_w 3.896e-21
+[   1.6s] L4.ln_2                    max_w 1.103e-17  med_w 3.995e-19
+[   1.8s] L4.gelu                    max_w 8.885e-18  med_w 3.026e-19
+[   1.8s] L4.resid+mlp  [LAYER 4]    max_w 1.727e-17  med_w 1.262e-18
+[   1.8s] L5.ln_1                    max_w 3.859e-15  med_w 1.215e-16
+[   1.9s] L5.attn(pre-proj)          max_w 3.814e-14  med_w 4.425e-16
+[   1.9s] L5.resid+attn              max_w 1.108e-14  med_w 7.182e-16
+[   1.9s] L5.ln_2                    max_w 2.161e-12  med_w 9.286e-14
+[   2.1s] L5.gelu                    max_w 1.196e-12  med_w 5.319e-14
+[   2.1s] L5.resid+mlp  [LAYER 5]    max_w 2.816e-12  med_w 2.456e-13
+[   2.1s] L6.ln_1                    max_w 5.038e-10  med_w 2.399e-11
+[   2.2s] L6.attn(pre-proj)          max_w 1.400e-08  med_w 8.789e-11
+[   2.2s] L6.resid+attn              max_w 4.055e-09  med_w 2.747e-10
+[   2.2s] L6.ln_2                    max_w 9.175e-07  med_w 3.987e-08
+[   2.4s] L6.gelu                    max_w 5.227e-07  med_w 3.180e-08
+[   2.5s] L6.resid+mlp  [LAYER 6]    max_w 1.248e-06  med_w 1.365e-07
+[   2.5s] L7.ln_1                    max_w 4.021e-04  med_w 1.591e-05
+[   2.5s] L7.attn(pre-proj)          max_w 3.785e-03  med_w 2.505e-05
+[   2.5s] L7.resid+attn              max_w 1.804e-03  med_w 1.302e-04
+[   2.5s] L7.ln_2                    max_w 4.529e-01  med_w 2.317e-02
+[   2.8s] L7.gelu                    max_w 4.701e-01  med_w 2.008e-02
+[   2.8s] L7.resid+mlp  [LAYER 7]    max_w 1.251e+00  med_w 1.047e-01
+[   2.8s] ln_f(last pos)             max_w 2.622e+03  med_w 2.179e+03
+[   5.4s] 50257 logits computed
+{
+ "prompt": "rare/high-ids",
+ "P": 256,
+ "certified": false,
+ "gap": 0.9030557930039773,
+ "max_width": 23650.860144056885,
+ "headroom_bits": -14.676718003771674
+}

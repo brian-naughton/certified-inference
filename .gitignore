@@ -1,0 +1,10 @@
+# FIREWALL: internal working docs — never tracked, never in history, never pushed.
+# Specs, plans, adversarial reviews, positioning notes live on disk only.
+docs/superpowers/
+docs/reviews/
+INTERNAL*
+.superpowers/
+data/
+__pycache__/
+*.egg-info/
+.pytest_cache/

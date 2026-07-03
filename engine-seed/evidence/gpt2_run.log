@@ -1,0 +1,163 @@
+=== GPT-2 small interval forward: seq_len=8, precision=384 bits, competitors=auto ===
+prompt ids: [464, 2068, 7586, 21831, 18045, 625, 262, 16931]
+[self-test] exact conversion + dot enclosure: OK
+[    0.0s] embed                      max_w 0.000e+00  med_w 0.000e+00
+[    2.2s] L0.ln_1                    max_w 6.091e-115  med_w 5.076e-116
+[    5.5s] L0.attn(pre-proj)          max_w 9.052e-112  med_w 2.714e-113
+[    6.6s] L0.resid+attn              max_w 2.737e-110  med_w 9.208e-112
+[    6.6s] L0.ln_2                    max_w 9.498e-111  med_w 2.270e-111
+[   17.0s] L0.gelu                    max_w 7.979e-109  med_w 7.483e-110
+[   21.2s] L0.resid+mlp  [LAYER 0]    max_w 9.879e-107  med_w 1.600e-107
+[decision] layer 0 took 21s; projected total ~314s -> FULL 50,257-vocab competitor set
+[   23.3s] L1.ln_1                    max_w 4.308e-107  med_w 3.958e-108
+[   26.7s] L1.attn(pre-proj)          max_w 4.400e-104  med_w 1.002e-105
+[   27.8s] L1.resid+attn              max_w 1.857e-102  med_w 9.766e-104
+[   27.8s] L1.ln_2                    max_w 2.816e-103  med_w 2.724e-104
+[   37.9s] L1.gelu                    max_w 9.823e-102  med_w 7.672e-103
+[   42.1s] L1.resid+mlp  [LAYER 1]    max_w 1.663e-99  med_w 1.682e-100
+[   44.2s] L2.ln_1                    max_w 1.110e-99  med_w 4.437e-101
+[   47.5s] L2.attn(pre-proj)          max_w 9.636e-97  med_w 1.803e-98
+[   48.6s] L2.resid+attn              max_w 2.137e-95  med_w 1.908e-96
+[   48.6s] L2.ln_2                    max_w 4.458e-96  med_w 5.699e-97
+[   59.4s] L2.gelu                    max_w 1.736e-94  med_w 1.090e-95
+[   63.7s] L2.resid+mlp  [LAYER 2]    max_w 3.998e-92  med_w 3.326e-93
+[   65.8s] L3.ln_1                    max_w 4.296e-92  med_w 9.537e-94
+[   69.2s] L3.attn(pre-proj)          max_w 3.834e-89  med_w 3.373e-91
+[   70.3s] L3.resid+attn              max_w 7.954e-88  med_w 3.127e-89
+[   70.4s] L3.ln_2                    max_w 1.540e-88  med_w 9.957e-90
+[   81.1s] L3.gelu                    max_w 5.874e-87  med_w 1.798e-88
+[   85.3s] L3.resid+mlp  [LAYER 3]    max_w 1.939e-84  med_w 4.456e-86
+[   87.5s] L4.ln_1                    max_w 1.296e-84  med_w 1.554e-86
+[   90.8s] L4.attn(pre-proj)          max_w 3.578e-81  med_w 4.079e-84
+[   91.9s] L4.resid+attn              max_w 4.479e-80  med_w 6.279e-82
+[   91.9s] L4.ln_2                    max_w 7.896e-81  med_w 2.011e-82
+[  102.3s] L4.gelu                    max_w 2.686e-79  med_w 4.088e-81
+[  106.6s] L4.resid+mlp  [LAYER 4]    max_w 7.329e-77  med_w 8.457e-79
+[  108.7s] L5.ln_1                    max_w 5.174e-77  med_w 4.263e-79
+[  112.0s] L5.attn(pre-proj)          max_w 1.098e-74  med_w 3.533e-77
+[  113.1s] L5.resid+attn              max_w 2.983e-73  med_w 3.008e-75
+[  113.1s] L5.ln_2                    max_w 8.472e-74  med_w 1.160e-75
+[  123.7s] L5.gelu                    max_w 2.101e-72  med_w 2.046e-74
+[  128.1s] L5.resid+mlp  [LAYER 5]    max_w 5.958e-70  med_w 4.086e-72
+[  130.1s] L6.ln_1                    max_w 4.969e-70  med_w 2.585e-72
+[  133.5s] L6.attn(pre-proj)          max_w 8.561e-68  med_w 2.373e-70
+[  134.5s] L6.resid+attn              max_w 2.766e-66  med_w 1.312e-68
+[  134.6s] L6.ln_2                    max_w 8.279e-67  med_w 5.362e-69
+[  144.9s] L6.gelu                    max_w 1.763e-65  med_w 8.168e-68
+[  149.2s] L6.resid+mlp  [LAYER 6]    max_w 4.825e-63  med_w 1.744e-65
+[  151.4s] L7.ln_1                    max_w 4.010e-63  med_w 1.295e-65
+[  154.7s] L7.attn(pre-proj)          max_w 1.476e-60  med_w 7.032e-64
+[  155.7s] L7.resid+attn              max_w 4.292e-59  med_w 3.621e-62
+[  155.8s] L7.ln_2                    max_w 9.211e-60  med_w 1.192e-62
+[  166.2s] L7.gelu                    max_w 1.758e-58  med_w 2.209e-61
+[  170.6s] L7.resid+mlp  [LAYER 7]    max_w 5.408e-56  med_w 4.575e-59
+[  172.7s] L8.ln_1                    max_w 3.847e-56  med_w 4.909e-59
+[  176.1s] L8.attn(pre-proj)          max_w 2.309e-53  med_w 3.442e-57
+[  177.1s] L8.resid+attn              max_w 4.891e-52  med_w 1.542e-55
+[  177.1s] L8.ln_2                    max_w 8.578e-53  med_w 3.193e-56
+[  187.6s] L8.gelu                    max_w 1.987e-51  med_w 6.095e-55
+[  192.0s] L8.resid+mlp  [LAYER 8]    max_w 4.782e-49  med_w 1.870e-52
+[  194.2s] L9.ln_1                    max_w 2.599e-49  med_w 1.491e-52
+[  197.5s] L9.attn(pre-proj)          max_w 9.484e-47  med_w 8.738e-51
+[  198.6s] L9.resid+attn              max_w 3.220e-45  med_w 5.109e-49
+[  198.6s] L9.ln_2                    max_w 4.408e-46  med_w 6.030e-50
+[  209.2s] L9.gelu                    max_w 1.276e-44  med_w 1.326e-48
+[  213.5s] L9.resid+mlp  [LAYER 9]    max_w 2.504e-42  med_w 4.871e-46
+[  215.6s] L10.ln_1                   max_w 9.453e-43  med_w 2.984e-46
+[  219.0s] L10.attn(pre-proj)         max_w 6.560e-40  med_w 2.240e-44
+[  220.1s] L10.resid+attn             max_w 2.972e-38  med_w 2.441e-42
+[  220.2s] L10.ln_2                   max_w 2.303e-39  med_w 1.327e-43
+[  230.7s] L10.gelu                   max_w 7.883e-38  med_w 3.225e-42
+[  235.0s] L10.resid+mlp  [LAYER 10]  max_w 2.008e-35  med_w 2.507e-39
+[  237.2s] L11.ln_1                   max_w 4.250e-36  med_w 9.533e-40
+[  240.5s] L11.attn(pre-proj)         max_w 2.800e-33  med_w 9.688e-38
+[  241.6s] L11.resid+attn             max_w 4.871e-31  med_w 1.897e-35
+[  241.6s] L11.ln_2                   max_w 9.756e-33  med_w 1.325e-36
+[  251.9s] L11.gelu                   max_w 9.691e-31  med_w 1.562e-35
+[  256.2s] L11.resid+mlp  [LAYER 11]  max_w 1.328e-28  med_w 1.680e-32
+[  256.3s] ln_f(last pos)             max_w 5.241e-28  med_w 7.476e-30
+[  275.5s] 50257 logits computed (FULL VOCAB (50257))
+{
+ "prompt_ids": [
+  464,
+  2068,
+  7586,
+  21831,
+  18045,
+  625,
+  262,
+  16931
+ ],
+ "competitor_set": "FULL VOCAB (50257)",
+ "widths_max": 1.4624764099416025e-27,
+ "widths_med": 1.046014610610252e-27,
+ "gap_top1_top2_float": 0.2703614814005988,
+ "certified_gap_lower_bound": 0.27036148140053273,
+ "headroom_bits": 87.25660673760378,
+ "ratio_maxw_over_gap": 5.409337167281713e-27,
+ "argmax_certified_among_chosen": true,
+ "top1_id": 11,
+ "top10": [
+  [
+   11,
+   -80.934291698237,
+   -80.93429169823696,
+   -80.93429169823696
+  ],
+  [
+   21831,
+   -81.2046531796376,
+   -81.2046531796375,
+   -81.2046531796375
+  ],
+  [
+   7586,
+   -81.43220514048853,
+   -81.43220514048858,
+   -81.43220514048858
+  ],
+  [
+   2330,
+   -81.53257630750167,
+   -81.53257630750161,
+   -81.53257630750161
+  ],
+  [
+   3290,
+   -81.86314393576329,
+   -81.8631439357633,
+   -81.8631439357633
+  ],
+  [
+   2266,
+   -81.90009880813916,
+   -81.90009880813916,
+   -81.90009880813916
+  ],
+  [
+   2042,
+   -81.91325319174939,
+   -81.91325319174918,
+   -81.91325319174918
+  ],
+  [
+   290,
+   -81.9518734444037,
+   -81.9518734444037,
+   -81.9518734444037
+  ],
+  [
+   16931,
+   -82.30587210453048,
+   -82.30587210453038,
+   -82.30587210453038
+  ],
+  [
+   1310,
+   -82.38217275484256,
+   -82.38217275484247,
+   -82.38217275484247
+  ]
+ ]
+}
+runtime 275.7s
