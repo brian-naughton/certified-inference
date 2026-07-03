@@ -86,7 +86,12 @@ def _run_interval_forward(model: str, ids: list[int], weights_path: str,
         if "sd" not in sd_cache:
             sd_cache["sd"] = torch.load(weights_path, map_location="cpu",
                                         weights_only=True)
-        return interval_forward_gpt2(ids, n_logits=n_logits,
+        # CERTIFIED path: the GPT-2 engine's competitor set is a STRING flag
+        # ("auto"/"full"), not the int-vocab sentinel the TinyStories engine
+        # uses. Map full-vocab intent explicitly to "full" and set
+        # require_full so the certificate can never rest on a partial
+        # (top-200 / runtime-budget-downgraded) competitor set.
+        return interval_forward_gpt2(ids, n_logits="full", require_full=True,
                                      log=lambda *a, **k: None,
                                      sd=sd_cache["sd"])
     raise ValueError(f"unknown model: {model!r}")
@@ -184,7 +189,14 @@ def certify_sample(
         if lg["argmax_certified_among_chosen"]:
             status = "CERTIFIED"
             argmax_token = lg["top1_id"]
-            margin_lo = lg.get("certified_gap_lower_bound")
+            # Prefer the exact Fraction margin: for GPT-2 `certified_gap_lower_
+            # bound` is a rounded float and the exact value lives in
+            # `certified_gap_lower_bound_exact`; for TinyStories the plain key
+            # is already an exact Fraction. Reading the _exact key when present
+            # keeps the recorded margin_lo exact (never float-derived).
+            margin_lo = lg.get("certified_gap_lower_bound_exact")
+            if margin_lo is None:
+                margin_lo = lg.get("certified_gap_lower_bound")
             abstain_reason = None
             phi1 = True
             break
@@ -203,7 +215,8 @@ def certify_sample(
     if run_harness:
         from certinf import harness
 
-        harness_transcript_sha256 = harness.transcript_sha256()
+        harness_transcript_sha256 = harness.transcript_sha256(
+            checkpoint_sha256=checkpoint_sha256)
         harness_top1 = harness.top1(model, weights_path, ids)
         phi2_joint = bool(status == "CERTIFIED" and harness_top1 == argmax_token)
 

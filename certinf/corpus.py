@@ -8,7 +8,7 @@ alone, so it is stable regardless of how the meta block is formatted.
 
 Scope note (Task 1 build): this module implements the general build/load/sha
 interface. `build_tinystories` fetches the real, licensed TinyStories
-validation split (CDLA-Sharing-1.0 — see docs/CORPUS-LICENSING.md) directly as
+validation split (CDLA-Sharing-1.0 — see docs/PROVENANCE.md) directly as
 a parquet file (NOT via the `datasets` library's full builder pipeline, which
 regenerates the entire multi-GB train+validation Arrow cache and is
 disk-prohibitive in a constrained environment) and tokenises with the

@@ -81,3 +81,61 @@ def test_calibration_record_validates_but_headline_check_raises():
 def test_headline_record_with_prereg_ref_validates():
     rec = schema.build_record(**_base_kwargs(prereg_ref="c" * 64))
     schema.validate_headline_record(rec)  # no raise
+
+
+# --------------------------------------------------------------------------- #
+# I2(chunk1): invalid enum values must raise.
+# --------------------------------------------------------------------------- #
+def test_invalid_status_raises():
+    rec = schema.build_record(**_base_kwargs())
+    rec["status"] = "MAYBE"
+    with pytest.raises(ValueError, match="status"):
+        schema.validate_record(rec)
+
+
+def test_invalid_abstain_reason_raises():
+    rec = schema.build_record(**_base_kwargs(
+        status="ABSTAIN", argmax_token=None, margin_lo=None,
+        abstain_reason="near-tie", phi1=False,
+    ))
+    rec["abstain_reason"] = "gremlin"
+    with pytest.raises(ValueError, match="abstain_reason"):
+        schema.validate_record(rec)
+
+
+# --------------------------------------------------------------------------- #
+# M4(chunk1): schema hardening — version, unknown keys, types, sha shape.
+# --------------------------------------------------------------------------- #
+def test_unrecognised_schema_version_raises():
+    rec = schema.build_record(**_base_kwargs())
+    rec["schema_version"] = "9.9"
+    with pytest.raises(ValueError, match="schema_version"):
+        schema.validate_record(rec)
+
+
+def test_unknown_top_level_key_raises():
+    rec = schema.build_record(**_base_kwargs())
+    rec["surprise"] = 1
+    with pytest.raises(ValueError, match="unknown top-level key"):
+        schema.validate_record(rec)
+
+
+def test_non_int_token_ids_raises():
+    rec = schema.build_record(**_base_kwargs())
+    rec["token_ids"] = [1, 2, "three"]
+    with pytest.raises(ValueError, match="token_ids"):
+        schema.validate_record(rec)
+
+
+def test_non_numeric_runtime_s_raises():
+    rec = schema.build_record(**_base_kwargs())
+    rec["runtime_s"] = "fast"
+    with pytest.raises(ValueError, match="runtime_s"):
+        schema.validate_record(rec)
+
+
+def test_malformed_sha_field_raises():
+    rec = schema.build_record(**_base_kwargs())
+    rec["checkpoint_sha256"] = "not-a-sha"
+    with pytest.raises(ValueError, match="checkpoint_sha256"):
+        schema.validate_record(rec)

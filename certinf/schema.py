@@ -20,9 +20,20 @@ from dataclasses import asdict, dataclass, field
 from fractions import Fraction
 
 SCHEMA_VERSION = "1.0"
+_KNOWN_SCHEMA_VERSIONS = {"1.0"}
 
 _STATUSES = {"CERTIFIED", "ABSTAIN"}
 _ABSTAIN_REASONS = {"near-tie", "width", "guard", "bug", "timeout"}
+
+# Fields whose value (when non-null) must be a 64-char lowercase-hex sha256.
+_SHA256_FIELDS = ("checkpoint_sha256", "corpus_sha256", "harness_transcript_sha256")
+
+
+def _is_sha256(v) -> bool:
+    """True iff v is a 64-char lowercase-hex string (a sha256 digest)."""
+    if not isinstance(v, str) or len(v) != 64:
+        return False
+    return all(c in "0123456789abcdef" for c in v)
 
 _REQUIRED_FIELDS = (
     "schema_version", "model", "checkpoint_sha256", "corpus_sha256",
@@ -153,6 +164,27 @@ def validate_record(rec: dict) -> None:
     for f in _REQUIRED_FIELDS:
         if f not in rec:
             raise ValueError(f"missing required field: {f!r}")
+
+    extra = set(rec) - set(_REQUIRED_FIELDS)
+    if extra:
+        raise ValueError(f"unknown top-level key(s): {sorted(extra)!r}")
+
+    if rec["schema_version"] not in _KNOWN_SCHEMA_VERSIONS:
+        raise ValueError(f"unrecognised schema_version: {rec['schema_version']!r} "
+                         f"(known: {sorted(_KNOWN_SCHEMA_VERSIONS)})")
+
+    if not isinstance(rec["token_ids"], list) or not all(
+        isinstance(t, int) for t in rec["token_ids"]
+    ):
+        raise ValueError("token_ids must be a list[int]")
+    if not isinstance(rec["runtime_s"], (int, float)) or isinstance(
+        rec["runtime_s"], bool
+    ):
+        raise ValueError("runtime_s must be a number")
+    for f in _SHA256_FIELDS:
+        if rec[f] is not None and not _is_sha256(rec[f]):
+            raise ValueError(f"{f} must be a 64-char lowercase-hex sha256 "
+                             f"(got {rec[f]!r})")
 
     if rec["status"] not in _STATUSES:
         raise ValueError(f"invalid status: {rec['status']!r} (must be one of {_STATUSES})")

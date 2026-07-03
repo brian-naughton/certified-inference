@@ -18,10 +18,16 @@ from __future__ import annotations
 import math
 
 from certinf import exact
+from certinf import ival_ext as E
 
 
 def _run(model: str, ids: list[int], P: int) -> dict:
     exact.set_precision(P)
+    # Invalidate the precision-keyed sqrt(2/pi) GELU constant cache: without
+    # this the 2P reference forward would reuse the P-bit cached constant, a
+    # self-injected precision floor that would make the canary UNDER-report
+    # the very kind of floor it exists to catch.
+    E._GELU_C = None
     if model == "tinystories":
         from certinf.interval_fwd import interval_forward, prepare_weights
         from certinf.float_fwd import load_sd

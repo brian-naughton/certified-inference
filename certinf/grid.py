@@ -170,20 +170,22 @@ def run_cell(model: str, weights_path: str, corpus_path: str,
     return summary
 
 
-def run_grid(config: dict) -> dict:
+def run_grid(config: dict, out_dir: str = "certificates/calibration") -> dict:
     """Run the full calibration grid over models x contexts x P_grid.
 
     `config`: {"cells": [{"model", "weights_path", "corpus_path",
     "context_length", "P", "n_samples", "jobs"}, ...]}. Writes
-    `calibration/summary.json` (all cell summaries) in addition to each
-    cell's own JSONL under certificates/calibration/.
+    `<out_dir>/summary.json` (all cell summaries) in addition to each cell's
+    own JSONL. `out_dir` defaults to `certificates/calibration/` (the summary
+    now lives alongside the per-cell JSONL artifacts instead of a bare
+    top-level `calibration/`); override to redirect.
     """
     cells = []
     for cell_cfg in config["cells"]:
         cells.append(run_cell(**cell_cfg))
     out = {"cells": cells}
-    os.makedirs("calibration", exist_ok=True)
-    with open("calibration/summary.json", "w") as f:
+    os.makedirs(out_dir, exist_ok=True)
+    with open(os.path.join(out_dir, "summary.json"), "w") as f:
         json.dump(out, f, indent=1)
     return out
 

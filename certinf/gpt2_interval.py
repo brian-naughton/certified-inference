@@ -56,7 +56,50 @@ LN_EPS = Fraction(1e-5)          # exact dyadic of the double (config eps)
 ATTN_SCALE = Fraction(1, 8)      # 1/sqrt(64) — EXACT rational
 FULL_VOCAB_BUDGET_S = 2700       # projected-runtime budget for full vocab
 
+VOCAB_SIZE = 50257               # GPT-2 small vocabulary
+
 Row = Tuple[List[int], int]      # (numerators N_i, common shift K): w_i = N_i/2**K
+
+
+def _choose_competitor_set(n_logits: str, full_vocab: bool | None,
+                           require_full: bool, top200: List[int]
+                           ) -> Tuple[List[int], str]:
+    """Select the certified competitor set (full vocab vs float top-200).
+
+    `require_full` is the certificate-safety flag: a certificate must be
+    derived over the FULL vocabulary (top-1 lower bound strictly above EVERY
+    other logit's upper bound), so on a certificate-producing call the
+    competitor set is forced to the full 50,257 tokens and this function
+    RAISES rather than silently degrading to a partial set — closing the
+    silent auto-downgrade (top-200 / runtime-budget fallback) that would
+    otherwise let a "certificate" rest on an incomplete competitor set.
+
+    Args:
+        n_logits: "full" (force full vocab) or "auto" (budget-driven).
+        full_vocab: the "auto" budget decision (True/False), or None if the
+            budget projection never ran.
+        require_full: certificate-safety flag (see above).
+        top200: the float top-200 competitor ids (the non-full fallback set).
+
+    Returns:
+        (chosen_ids, competitor_description).
+
+    Raises:
+        RuntimeError: require_full is set but the resolved set is not the full
+            vocabulary (defends against any future partial-set regression).
+    """
+    if require_full or n_logits == "full" or full_vocab:
+        chosen = list(range(VOCAB_SIZE))
+        comp_desc = f"FULL VOCAB ({VOCAB_SIZE})"
+    else:
+        chosen = top200
+        comp_desc = "float top-200"
+    if require_full and len(chosen) != VOCAB_SIZE:
+        raise RuntimeError(
+            "require_full certified path resolved to a partial competitor "
+            f"set (len {len(chosen)} != vocab {VOCAB_SIZE}); refusing to "
+            "certify over an incomplete set")
+    return chosen, comp_desc
 
 
 # --------------------------------------------------------------------------- #
@@ -175,7 +218,15 @@ def wstats(res) -> Tuple[float, float]:
 
 
 def interval_forward_gpt2(ids: List[int], n_logits: str = "auto",
-                          log=print, sd: dict | None = None) -> dict:
+                          log=print, sd: dict | None = None,
+                          require_full: bool = False) -> dict:
+    """Rigorous interval forward for GPT-2 small.
+
+    `require_full=True` (set by the certifier) forces the FULL 50,257-vocab
+    competitor set and disables the "auto" runtime-budget downgrade to
+    top-200: a certificate is never emitted over a partial competitor set
+    (see `_choose_competitor_set`).
+    """
     if sd is None:
         sd = load_sd()
     _self_test(sd)
@@ -275,8 +326,10 @@ def interval_forward_gpt2(ids: List[int], n_logits: str = "auto",
         layer_s = time.time() - tL
         stats["layer_times_s"].append(round(layer_s, 1))
 
-        if L == 0 and n_logits == "auto":
-            # runtime protocol: project total cost, decide the competitor set
+        if L == 0 and n_logits == "auto" and not require_full:
+            # runtime protocol: project total cost, decide the competitor set.
+            # Skipped entirely under require_full (certified path): the full
+            # vocab is mandatory there and the budget downgrade must not apply.
             proj_total = layer_s * N_LAYERS * 1.1 + layer_s * 1.6
             full_vocab = proj_total < FULL_VOCAB_BUDGET_S
             log(f"[decision] layer 0 took {layer_s:.0f}s; projected total "
@@ -292,12 +345,8 @@ def interval_forward_gpt2(ids: List[int], n_logits: str = "auto",
     # ---- logits: certified competitor set ----
     logits_f = forward(sd, ids, torch.float64)[-1]
     top200 = torch.topk(logits_f, 200).indices.tolist()
-    if n_logits == "full" or full_vocab:
-        chosen = list(range(50257))
-        comp_desc = "FULL VOCAB (50257)"
-    else:
-        chosen = top200
-        comp_desc = "float top-200"
+    chosen, comp_desc = _choose_competitor_set(n_logits, full_vocab,
+                                               require_full, top200)
     xlo = [iv.lo_i for iv in fin]
     xhi = [iv.hi_i for iv in fin]
     logit_ivs = {}
