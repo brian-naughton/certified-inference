@@ -1,0 +1,57 @@
+{
+ "prereg_format_version": 2,
+ "model": "tinystories",
+ "checkpoint_sha256": "07f9609ea882b8163ff3b23d40e2b82cb715d409631beb15c84b164f3877dae7",
+ "corpus_sha256": "a64cbe64269d4620e8a9313f369634e84b6809037cfe96273a3a419891dea1ad",
+ "context_length": 16,
+ "P_max": 256,
+ "n": 12,
+ "delta": [
+  "1",
+  "20"
+ ],
+ "delta_split": {
+  "phi1": [
+   "1",
+   "40"
+  ],
+  "phi2_joint": [
+   "1",
+   "40"
+  ]
+ },
+ "hoeffding": {
+  "formula": "epsilon = sqrt(ln(1/delta) / (2*n))",
+  "n": 12,
+  "delta": [
+   "1",
+   "20"
+  ],
+  "epsilon_display": "0.353302",
+  "epsilon_display_dp": 6,
+  "epsilon_display_rounding": "up",
+  "display_note": "epsilon is rounded UP so any displayed population lower bound k/n - epsilon rounds DOWN \u2014 the display never overstates the certified rate. The exact record is (n, delta); the string is advisory."
+ },
+ "seed": 1,
+ "phi_definitions": {
+  "phi1": "argmax certified at P <= P_max",
+  "phi2_joint": "pinned float32 top-1 agrees with certified exact-real top-1",
+  "_label": "DRY RUN NOT HEADLINE"
+ },
+ "escalation_policy": {
+  "P_grid": [
+   128,
+   160,
+   192
+  ],
+  "P_max": 256,
+  "_label": "DRY RUN NOT HEADLINE"
+ },
+ "sample_index_sha256": "5824b5cbccc4151c341ca59922a516814fc6887dbcefdcc80c7ed91aaf1dffd9",
+ "python_version": [
+  3,
+  11,
+  14
+ ],
+ "prereg_sha256": "3fa32a573203654e77646430888d52e61d3ef706f638e2c8d9c72e4cefaeb396"
+}
