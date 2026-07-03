@@ -152,8 +152,8 @@ def _freeze_matching(tmp_path, corpus_path, n, target_multiset):
     for seed in range(2000):
         doc = prereg.freeze(dict(
             model="tinystories", checkpoint_sha256="0" * 64, context_length=8,
-            P_max=256, n=n, delta=0.05,
-            delta_split={"phi1": 0.025, "phi2_joint": 0.025}, seed=seed,
+            P_max=256, n=n, delta="0.05",
+            delta_split={"phi1": "0.025", "phi2_joint": "0.025"}, seed=seed,
             phi_definitions={"phi1": "certified argmax"},
             escalation_policy={"P_grid": [96, 128, 160], "P_max": 256},
         ), corpus_path, str(out_dir))

@@ -57,6 +57,8 @@ import random
 import sys
 import warnings
 from dataclasses import asdict, dataclass
+from decimal import ROUND_CEILING, Decimal, localcontext
+from fractions import Fraction
 
 from certinf import corpus as corpus_mod
 
@@ -65,9 +67,125 @@ _REQUIRED_SPEC_FIELDS = (
     "delta_split", "seed", "phi_definitions", "escalation_policy",
 )
 
+# M1 — prereg artifact format version. Format 1 (implicit, unversioned) carried
+# the delta budget as binary float32/float64 (`delta: 0.05`, `delta_split:
+# {..: 0.025}`) and accepted a 1e-12 tolerance in the sum-check. Format 2
+# carries delta and every delta_split entry as an EXACT ["num","den"] Fraction
+# pair, the sum-check is exact rational equality (no tolerance anywhere in the
+# certification path), and a Hoeffding block records the (n, delta) inputs
+# exactly plus a conservatively display-rounded epsilon string.
+PREREG_FORMAT_VERSION = 2
+_KNOWN_FORMAT_VERSIONS = {2}
+
+# Decimal places in the ADVISORY Hoeffding-epsilon display string.
+_EPSILON_DISPLAY_DP = 6
+
 
 def canonical_json(obj) -> str:
     return json.dumps(obj, separators=(",", ":"), sort_keys=True)
+
+
+def _to_fraction(v) -> Fraction:
+    """Parse an EXACT delta value into a Fraction.
+
+    Accepts an int, a decimal- or ratio-string (``"0.05"``, ``"1/20"`` — both
+    exact), or a ``[num, den]`` pair. A bare ``float`` is REJECTED: the point
+    of M1 is that no binary-float imprecision ever enters the delta budget or
+    the certification path. ``Fraction("0.05")`` is exactly ``1/20``, whereas
+    ``Fraction(0.05)`` (the float) is ``3602879701896397/72057594037927936``.
+
+    Args:
+        v: An int, a decimal/ratio string, or a ``[num, den]`` pair.
+
+    Returns:
+        The exact Fraction the value denotes.
+
+    Raises:
+        ValueError: If ``v`` is a float or is otherwise unparseable.
+    """
+    if isinstance(v, bool):
+        raise ValueError(f"delta value must be exact, not bool: {v!r}")
+    if isinstance(v, int):
+        return Fraction(v)
+    if isinstance(v, str):
+        return Fraction(v)
+    if isinstance(v, (list, tuple)):
+        if len(v) != 2:
+            raise ValueError(f"delta [num, den] pair must have length 2: {v!r}")
+        return Fraction(int(v[0]), int(v[1]))
+    if isinstance(v, float):
+        raise ValueError(
+            "delta value must be given exactly (a decimal string like "
+            f"'0.05', a ratio '1/20', or a [num, den] pair) — never a float: {v!r}")
+    raise ValueError(f"cannot parse delta value as an exact Fraction: {v!r}")
+
+
+def _frac_to_pair(f: Fraction) -> list[str]:
+    """Serialise a Fraction as ``[num, den]`` decimal strings (arbitrary
+    precision; always fully reduced, so the pair is canonical)."""
+    return [str(f.numerator), str(f.denominator)]
+
+
+def _hoeffding_epsilon_display(n: int, delta: Fraction,
+                               dp: int = _EPSILON_DISPLAY_DP) -> str:
+    """Advisory decimal display of the Hoeffding half-width
+    ``epsilon(n, delta) = sqrt(ln(1/delta) / (2n))``, rounded UP at ``dp``
+    decimal places.
+
+    Rounding epsilon UP is deliberate. The published population claim is a
+    LOWER bound ``k/n - epsilon``, so a larger epsilon yields a smaller (more
+    conservative) displayed lower bound: rounding epsilon up therefore rounds
+    any displayed lower bound DOWN, so the display can only ever understate —
+    never overstate — the certified rate. The authoritative record is the
+    exact ``(n, delta)`` pair in the Hoeffding block; this string is cosmetic.
+
+    Computed deterministically at 60 significant digits via :mod:`decimal`
+    (ln + sqrt), far below the ``dp``-place rounding boundary, so the ceiling
+    is stable across interpreters.
+
+    Args:
+        n: Sample size (positive).
+        delta: Failure probability, a Fraction in the open interval (0, 1).
+        dp: Decimal places in the returned string.
+
+    Returns:
+        The epsilon value as a decimal string rounded up to ``dp`` places.
+
+    Raises:
+        ValueError: If ``n <= 0`` or ``delta`` is not in (0, 1).
+    """
+    if n <= 0:
+        raise ValueError(f"Hoeffding n must be positive: {n!r}")
+    if not (0 < delta < 1):
+        raise ValueError(f"Hoeffding delta must lie in (0, 1): {delta!r}")
+    with localcontext() as ctx:
+        ctx.prec = 60
+        delta_dec = Decimal(delta.numerator) / Decimal(delta.denominator)
+        # ln(1/delta) = -ln(delta) (delta < 1 => ln(delta) < 0 => positive)
+        inner = (-delta_dec.ln()) / (Decimal(2) * Decimal(n))
+        eps = inner.sqrt()
+        quantum = Decimal(1).scaleb(-dp)
+        return str(eps.quantize(quantum, rounding=ROUND_CEILING))
+
+
+def _hoeffding_block(n: int, delta: Fraction) -> dict:
+    """The frozen Hoeffding accounting: exact ``(n, delta)`` inputs plus a
+    conservatively display-rounded epsilon (see
+    :func:`_hoeffding_epsilon_display`)."""
+    return {
+        "formula": "epsilon = sqrt(ln(1/delta) / (2*n))",
+        "n": n,
+        "delta": _frac_to_pair(delta),
+        "epsilon_display": _hoeffding_epsilon_display(n, delta),
+        "epsilon_display_dp": _EPSILON_DISPLAY_DP,
+        "epsilon_display_rounding": "up",
+        "display_note": (
+            "epsilon is rounded UP so any displayed population lower bound "
+            "k/n - epsilon rounds DOWN — the display never overstates the "
+            "certified rate. The exact record is (n, delta); the string is "
+            "advisory."
+        ),
+    }
 
 
 def _python_version() -> list[int]:
@@ -82,16 +200,23 @@ def _python_version() -> list[int]:
 @dataclass(frozen=True)
 class PreRegistration:
     """The frozen A2 pre-registration tuple — everything a headline run must
-    commit before drawing a single certified sample."""
+    commit before drawing a single certified sample.
 
+    M1 (format 2): ``delta`` is an exact ``["num","den"]`` Fraction pair and
+    ``delta_split`` maps each property to such a pair; ``hoeffding`` records
+    the exact ``(n, delta)`` epsilon inputs plus an advisory display string.
+    No float appears anywhere in the delta budget."""
+
+    prereg_format_version: int
     model: str
     checkpoint_sha256: str
     corpus_sha256: str
     context_length: int
     P_max: int
     n: int
-    delta: float
-    delta_split: dict
+    delta: list                       # ["num","den"] exact Fraction pair
+    delta_split: dict                 # {property: ["num","den"]}
+    hoeffding: dict
     seed: int
     phi_definitions: dict
     escalation_policy: dict
@@ -125,8 +250,14 @@ def freeze(spec: dict, corpus_path: str, out_dir: str) -> dict:
 
     `spec` must supply: model, checkpoint_sha256, context_length, P_max, n,
     delta, delta_split, seed, phi_definitions, escalation_policy.
-    `delta_split` must sum to `delta` (A2: "delta split explicit") — e.g.
-    `{"phi1": 0.025, "phi2_joint": 0.025}` for `delta=0.05`.
+    `delta` and every `delta_split` value are given EXACTLY — as a decimal
+    string (`"0.05"`), a ratio (`"1/20"`), or a `[num, den]` pair — never a
+    float (M1). `delta_split` must sum to `delta` under EXACT rational
+    equality, with no tolerance (A2: "delta split explicit") — e.g.
+    `{"phi1": "0.025", "phi2_joint": "0.025"}` for `delta="0.05"`. The written
+    artifact stores them as canonical `["num","den"]` pairs and records a
+    Hoeffding block (exact `(n, delta)` plus a conservatively rounded epsilon
+    display).
 
     No adaptive stopping, no n-extension, no post-hoc promotion: once
     written, `prereg.json` and `sample-index.json` are the precommit record
@@ -137,12 +268,15 @@ def freeze(spec: dict, corpus_path: str, out_dir: str) -> dict:
     if missing:
         raise ValueError(f"spec missing required field(s): {missing!r}")
 
-    delta = spec["delta"]
-    delta_split = spec["delta_split"]
-    split_sum = sum(delta_split.values())
-    if abs(split_sum - delta) > 1e-12:
-        raise ValueError(f"delta_split must sum to delta: sum({delta_split!r})"
-                         f"={split_sum!r} != delta={delta!r}")
+    # M1: parse delta + every split entry as EXACT Fractions; the sum-check is
+    # exact rational equality — NO tolerance in the certification path.
+    delta_frac = _to_fraction(spec["delta"])
+    split_fracs = {k: _to_fraction(v) for k, v in spec["delta_split"].items()}
+    split_sum = sum(split_fracs.values(), Fraction(0))
+    if split_sum != delta_frac:
+        raise ValueError(
+            f"delta_split must sum to delta EXACTLY: "
+            f"sum={_frac_to_pair(split_sum)} != delta={_frac_to_pair(delta_frac)}")
 
     corpus_doc = corpus_mod.load(corpus_path)
     corpus_sha256 = corpus_doc["corpus_sha256"]
@@ -172,14 +306,16 @@ def freeze(spec: dict, corpus_path: str, out_dir: str) -> dict:
         canonical_json(index_doc).encode()).hexdigest()
 
     prereg = PreRegistration(
+        prereg_format_version=PREREG_FORMAT_VERSION,
         model=spec["model"],
         checkpoint_sha256=spec["checkpoint_sha256"],
         corpus_sha256=corpus_sha256,
         context_length=spec["context_length"],
         P_max=spec["P_max"],
         n=n,
-        delta=delta,
-        delta_split=delta_split,
+        delta=_frac_to_pair(delta_frac),
+        delta_split={k: _frac_to_pair(v) for k, v in split_fracs.items()},
+        hoeffding=_hoeffding_block(n, delta_frac),
         seed=seed,
         phi_definitions=spec["phi_definitions"],
         escalation_policy=spec["escalation_policy"],
@@ -200,8 +336,10 @@ def freeze(spec: dict, corpus_path: str, out_dir: str) -> dict:
 def verify(prereg_path: str, corpus_path: str) -> bool:
     """Re-draw from the committed `(seed, corpus_sha)` and assert the
     committed `sample-index.json` reproduces bit-identically — the freeze
-    witness (A2 precommit). Also re-validates the delta-split invariant
-    (`abs(sum(delta_split.values()) - delta) <= 1e-12`) and cross-checks
+    witness (A2 precommit). Also re-validates the delta-split invariant under
+    EXACT rational equality (`sum(Fraction(delta_split[k])) == Fraction(delta)`
+    — no tolerance, M1), re-checks the Hoeffding block's epsilon display
+    against its own exact `(n, delta)`, and cross-checks
     `sample-index.json`'s own embedded `seed`/`corpus_sha256`/
     `context_length` against `prereg.json`'s, so a self-consistently
     re-hashed artifact whose budget or binding has silently drifted still
@@ -239,19 +377,46 @@ def verify(prereg_path: str, corpus_path: str) -> bool:
         canonical_json(body).encode()).hexdigest():
         return False
 
-    # I1: re-validate the delta-split invariant. freeze() enforces this at
-    # write time, but verify() must not simply trust a re-frozen artifact —
-    # a self-consistently re-hashed prereg.json with a broken delta budget
-    # must fail the witness.
+    # M1: only known format versions are witnessable. Format 1 (unversioned,
+    # float delta) is deliberately not accepted here.
+    if prereg_dict.get("prereg_format_version") not in _KNOWN_FORMAT_VERSIONS:
+        return False
+
+    # I1 + M1: re-validate the delta-split invariant under EXACT rational
+    # equality. freeze() enforces this at write time, but verify() must not
+    # simply trust a re-frozen artifact — a self-consistently re-hashed
+    # prereg.json with a broken delta budget must fail the witness. NO
+    # tolerance: a split summing to delta +/- 1e-13 is REJECTED.
     delta = prereg_dict.get("delta")
     delta_split = prereg_dict.get("delta_split")
-    if not isinstance(delta_split, dict) or not isinstance(delta, (int, float)):
+    if not isinstance(delta_split, dict):
         return False
     try:
-        split_ok = abs(sum(delta_split.values()) - delta) <= 1e-12
-    except TypeError:
+        delta_frac = _to_fraction(delta)
+        split_sum = sum((_to_fraction(v) for v in delta_split.values()),
+                        Fraction(0))
+    except (ValueError, TypeError, ZeroDivisionError):
         return False
-    if not split_ok:
+    if split_sum != delta_frac:
+        return False
+
+    # M1: the Hoeffding block must be self-consistent — its own (n, delta) must
+    # match the tuple's n/delta and its epsilon display must recompute exactly
+    # (a tampered display or a drifted n/delta fails the witness).
+    hoeffding = prereg_dict.get("hoeffding")
+    if not isinstance(hoeffding, dict):
+        return False
+    try:
+        h_delta = _to_fraction(hoeffding.get("delta"))
+    except (ValueError, TypeError, ZeroDivisionError):
+        return False
+    if hoeffding.get("n") != prereg_dict.get("n") or h_delta != delta_frac:
+        return False
+    try:
+        expected_eps = _hoeffding_epsilon_display(hoeffding["n"], h_delta)
+    except (ValueError, TypeError, KeyError):
+        return False
+    if hoeffding.get("epsilon_display") != expected_eps:
         return False
 
     try:
