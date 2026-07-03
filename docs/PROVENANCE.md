@@ -18,6 +18,52 @@ format — TF, safetensors, ONNX — and bloated the local cache to >5 GB on a
 disk-constrained development machine; the filtered fetch is ~500 MB, matching
 the actual model size).
 
+## Weight hex export (Task 0.4)
+
+`certinf.loader.export_weights(model_key, out_path)` sha-verifies the pinned
+`pytorch_model.bin` above (re-hashing on every call — never trusts the cache
+path alone), then writes every named weight tensor
+(`certinf.loader.TS_TENSOR_NAMES` / `GPT2_TENSOR_NAMES` — exactly the tensor
+names `certinf.interval_fwd.prepare_weights` / `certinf.gpt2_interval`
+consume) as nested `float(v).hex()` strings, torch-free downstream.
+
+**Exact-real caveat**: every stored weight is float32 (<=24-bit mantissa);
+Python's `float` is float64 (53-bit mantissa), so the float32->float64
+widening is exact (no rounding), and `float.hex()`/`float.fromhex()` round
+trip that float64 value bit-for-bit. `certinf.interval_fwd` and
+`certinf.gpt2_interval` already treat every weight as an exact dyadic
+rational (`Fraction(v)`, or a frexp-based common-denominator conversion) —
+this export introduces no additional rounding beyond that pre-existing
+float32-as-exact-real assumption. Redundant trailing mantissa zeros are
+stripped from each hex literal (`0x1.921fb60000000p+1` -> `0x1.921fb6p+1`;
+float32-origin values carry at most 6 significant hex digits) — a ~30% size
+cut with `float.fromhex` still parsing back to the identical float64,
+asserted per element by `tests/test_loader.py`.
+
+**Artifact policy (measured sizes, 2026-07-03):**
+
+| artifact | size | policy |
+|---|---|---|
+| `certificates/tinystories-1M.weights.json` | ~64 MB | committed |
+| `certificates/gpt2-small.weights.json` | ~2.1 GB | gitignored — regenerate on demand |
+
+The task plan estimated "TS ~a few MB; GPT-2 ~tens of MB"; the real sizes
+are ~30x / ~100x that (124.4M weights x >=16 bytes/element is a hard floor
+for hex text). The GPT-2 export exceeds GitHub's 100 MB per-file hard limit
+~20x and (during this task) filled the development disk mid-write, so it is
+NOT committed. Its sha-pinned provenance keeps it fully deterministic:
+regenerating from the pinned checkpoint reproduces the identical file.
+
+Regenerate either artifact with:
+
+```bash
+python3.11 -c "from certinf.loader import export_weights as e; \
+e('tinystories-1M', 'certificates/tinystories-1M.weights.json')"
+# GPT-2 (~2.1 GB on disk — check free space first):
+python3.11 -c "from certinf.loader import export_weights as e; \
+e('gpt2-small', 'certificates/gpt2-small.weights.json')"
+```
+
 ## Corpus
 
 `certificates/corpora/tinystories-val.ids.json`: 200 non-overlapping windows

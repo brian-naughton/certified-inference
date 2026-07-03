@@ -9,3 +9,6 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 .DS_Store
+# Task 0.4: the GPT-2 hex export is ~2.1 GB (>> GitHub's 100 MB hard limit) —
+# regenerate on demand; see docs/PROVENANCE.md "Weight hex export".
+certificates/gpt2-small.weights.json
