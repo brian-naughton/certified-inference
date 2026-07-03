@@ -58,6 +58,6 @@ Per-family points used in the fit:
 
 ## Caveats (added post-review, 2026-07-03)
 
-- **Provenance/verification status:** these records were produced by the pre-review-fix engine build. The one Critical review finding was GPT-2-specific (no GPT-2 cells ran here) and the GELU-cache change is equivalent to the per-step invalidation the certifier already performed, so the TinyStories figures are believed unaffected — but they have not yet been re-derived by the independent checker (Task 0.8). Treat as provisional until that pass runs.
+- **Provenance/verification status:** these records were produced by the pre-review-fix engine build. The one Critical review finding was GPT-2-specific (no GPT-2 cells ran here) and the GELU-cache change is equivalent to the per-step invalidation the certifier already performed, so the TinyStories figures are believed unaffected — but they have not yet been re-derived by the independent checker (Task 0.8). UPDATE 2026-07-03: that pass has now run — the independent torch-free checker re-derived ALL 300 records bit-identically from the hex weight export (Task 0.8 acceptance, ~14 min). The provisional status is lifted; figures are independently verified.
 - **`peak_rss_mb` is a process-lifetime peak** (`ru_maxrss` within reused pool workers), not per-sample memory: later samples inherit earlier peaks. Diagnostic only.
 - The `r2 = 1.0000` on the single-family fit is definitional (one point), not a fit-quality claim — see the degeneracy note above.

@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """Independent, torch-free re-derivation of per-sample certificates.
 
+TRUST BOUNDARY (two instruments): this checker re-derives records from the hex
+weight export and trusts that export's self-declared checkpoint_sha256; the
+binding of hex bytes to the actual checkpoint is certinf/loader.py's one-time,
+sha-verified job. check.py alone proves (hex weights => records) consistency,
+not weight authenticity — the two instruments together close the boundary.
+
 This module CLOSES THE TORCH TRUST BOUNDARY for the certified path. It reads
 the model weights *only* from the sha-pinned hex export produced by
 `certinf.loader.export_weights` (`float.fromhex` — never torch, never the
@@ -153,6 +159,9 @@ def _dot_rows(x, W, bias):
     return out
 
 
+# MIRROR of certinf.interval_fwd.interval_forward — keep in LOCKSTEP with the
+# engine's wiring; any engine forward-pass edit must be mirrored here (divergence
+# fails loudly as a bit-mismatch, but should be caught by a maintainer first).
 def _logit_intervals(prep: dict, ids: list[int]) -> list[Ival]:
     """Full interval forward for TinyStories-1M (GPT-Neo arch), returning the
     full-vocabulary logit intervals for the final position. Mirrors
