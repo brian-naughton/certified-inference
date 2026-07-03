@@ -36,6 +36,32 @@ headline run — and never edited afterwards.
 The one-sided Hoeffding lower bound is `L = k/n − sqrt(ln(1/δ) / (2n))`, clipped to
 `[0, 1]`, computed from exact `(k, n, δ)` inputs with stable decimal rendering.
 
+### Bound values (freeze commit, 2026-07-03)
+
+Bound exactly once, at the precommitment commit, from
+`certificates/prereg/headline/prereg.json` + `sample-index.json`. The
+result-dependent slots (`k`, `k₂`, and the *observed* `L₁`, `L₂`) are **not**
+bound here — no headline results exist in the freeze commit — and are filled in
+the post-run commit; the all-success (`k = n`) target for `L₁` is recorded below.
+
+| Slot | Frozen value |
+|---|---|
+| model | TinyStories-1M (loader key `tinystories`) |
+| `C` — `corpus_sha256` | `de3579e9051d85980ff6154b1be980fc5bd3f7a433945a61c53c06313c6b42bd` (`certificates/corpora/tinystories-val.ids.json`, ctx 16, 200 windows) |
+| `checkpoint_sha256` | `07f9609ea882b8163ff3b23d40e2b82cb715d409631beb15c84b164f3877dae7` |
+| `prereg_sha256` (each record's `prereg_ref`) | `7f846ddb8fecc01c9d047e41ef64f1bf0efe1eddce9715f6654614beb770ea09` |
+| `sample_index_sha256` | `4c3beeadb026fd1bafa1d18c2c14afc4b1f00b4e677a0017c4715c40cdebfb5f` |
+| `n` | `1000` (with replacement; 196 distinct indices in `[0, 199]`, duplicates kept — never deduplicated) |
+| `seed` | `20260703` — nothing-up-my-sleeve: the project date 2026-07-03, declared as such |
+| `P_max` | `256` (escalation ladder `P_grid = [128, 160, 192]`, capped at `P_max`; abstain-by-width only) |
+| `δ` | `1/20` (exact rational) |
+| `δ₁` (φ₁) | `1/40` (exact rational) |
+| `δ₂` (φ₂_joint) | `1/40` (exact rational) |
+| `ε₁ = ε(n, δ₁)` | `sqrt(ln(40) / 2000) = 0.042947` — display rounded **UP**, so any `L₁ = k/n − ε₁` display rounds **DOWN** |
+| `ε(n, δ)` total | `sqrt(ln(20) / 2000) = 0.038703` — the `prereg.json` Hoeffding block (advisory; over the total budget) |
+| `L₁` target if `k = n = 1000` | `1 − ε₁ ≥ 0.9570` → headline **"at least 95.7%"** at `δ₁ = 1/40` (display-rounded **DOWN**, safe-direction rule) |
+| `k`, `k₂`, observed `L₁`, `L₂` | **bound post-run** (no results in the freeze commit) |
+
 ---
 
 ## The headline claim (frozen verbatim)
