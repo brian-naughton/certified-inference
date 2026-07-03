@@ -1,0 +1,83 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  # Torch-free lane: the certified path (certinf.exact / certinf.ival_ext) and
+  # the independent checker (certificates/check.py) are pure standard library,
+  # so no torch is installed here. This is the trust boundary — CI re-derives
+  # certificates from the committed hex weight export, never from a torch load.
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dev dependencies (stdlib + pytest only, no torch)
+        run: pip install -r requirements-dev.txt
+      - name: Rung 1 - stdlib tests
+        # Explicit torch-free allowlist. test_canary and
+        # test_import::test_package_imports are deliberately excluded: they
+        # exercise the torch loader (certinf.float_fwd / interval_fwd), i.e.
+        # exactly the boundary this checker was built to replace, so they run
+        # in the torch lane (`pytest -m torch`) locally, not in CI.
+        run: |
+          python -m pytest -v \
+            tests/test_ext.py \
+            tests/test_gelu_cache.py \
+            tests/test_schema.py \
+            tests/test_prereg.py \
+            tests/test_check.py \
+            tests/test_import.py::test_core_is_torch_free
+      - name: Rung 2 - sampled independent checker re-derivation
+        # Re-derives a sample of the committed TinyStories calibration cert from
+        # the 65 MB committed hex weights (certificates/tinystories-1M.weights.json,
+        # in-repo) + the committed corpus — no torch. --sample 50 checks every
+        # 50th record (2 of 100) to keep CI fast; the full grid re-derivation is
+        # run offline (see docs / task-0.8 report).
+        run: |
+          python certificates/check.py \
+            --weights certificates/tinystories-1M.weights.json \
+            --corpus certificates/corpora/tinystories-val.ids.json \
+            --cert certificates/calibration/tinystories_ctx8_P256.jsonl \
+            --sample 50
+
+  # Lean proof lane — added/enabled in Task 2.4 (the `circuit == spec` proof and
+  # its axiom audit do not exist yet in Phase 0). Mirrors certified-grokking's
+  # verify.yml: cache elan + `lake build`, assert the axiom-audit line and grep
+  # out any sorryAx. Disabled until the proofs/ tree lands.
+  lean:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache elan and Lake build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            proofs/.lake
+          key: lean-${{ runner.os }}-${{ hashFiles('proofs/lake-manifest.json') }}
+      - name: Install elan
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf \
+            | sh -s -- -y --default-toolchain "$(cat proofs/lean-toolchain)"
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build proof and capture axiom audit
+        working-directory: proofs
+        run: |
+          lake exe cache get
+          lake build 2>&1 | tee build.log
+      - name: Assert axiom audit and no sorry
+        working-directory: proofs
+        run: |
+          if grep -q "sorryAx" build.log; then
+            echo "sorryAx found in build log" >&2
+            exit 1
+          fi
