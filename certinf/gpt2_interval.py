@@ -175,8 +175,9 @@ def wstats(res) -> Tuple[float, float]:
 
 
 def interval_forward_gpt2(ids: List[int], n_logits: str = "auto",
-                          log=print) -> dict:
-    sd = load_sd()
+                          log=print, sd: dict | None = None) -> dict:
+    if sd is None:
+        sd = load_sd()
     _self_test(sd)
     T = len(ids)
     t0 = time.time()
@@ -322,12 +323,21 @@ def interval_forward_gpt2(ids: List[int], n_logits: str = "auto",
               for i, iv in logit_ivs.items() if i != t1)
     cert_gap = min(float(Fraction(logit_ivs[t1].lo_i - iv.hi_i, scale))
                    for i, iv in logit_ivs.items() if i != t1)
+    # exact-Fraction form of cert_gap (additive: same lo_i/hi_i comparison,
+    # kept as a Fraction instead of rounded to float — certinf.certify needs
+    # an exact certified margin_lo, not an approximation).
+    cert_gap_exact = min(
+        (Fraction(logit_ivs[t1].lo_i - iv.hi_i, scale)
+         for i, iv in logit_ivs.items() if i != t1),
+        default=None,
+    )
     stats["logits"] = {
         "prompt_ids": ids,
         "competitor_set": comp_desc,
         "widths_max": max(lw), "widths_med": statistics.median(lw),
         "gap_top1_top2_float": gap,
         "certified_gap_lower_bound": cert_gap,
+        "certified_gap_lower_bound_exact": cert_gap_exact,
         "headroom_bits": math.log2(gap / max(lw)) if max(lw) > 0 else float("inf"),
         "ratio_maxw_over_gap": max(lw) / gap,
         "argmax_certified_among_chosen": sep,

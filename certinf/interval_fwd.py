@@ -245,6 +245,16 @@ def interval_forward(seq_len: int, n_logits: int = 200,
     sep = all(id2iv[t1].lo_i > iv.hi_i
               for i, iv in id2iv.items() if i != t1)
     stats["logits"]["argmax_certified_among_chosen"] = sep
+    stats["logits"]["top1_id"] = t1
+    # exact-Fraction certified lower bound on the top1-vs-rest gap (additive:
+    # the same lo_i/hi_i comparison `sep` already performs, just also keeping
+    # the min margin instead of only the all() boolean — no interval
+    # arithmetic changes, PyTorch not on this path).
+    stats["logits"]["certified_gap_lower_bound"] = min(
+        (Fraction(id2iv[t1].lo_i - iv.hi_i, exact._SCALE)
+         for i, iv in id2iv.items() if i != t1),
+        default=None,
+    )
     stats["runtime_s"] = time.time() - t0
     return stats
 
