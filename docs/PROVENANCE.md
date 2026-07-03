@@ -106,6 +106,9 @@ tokenizer — see `tests/test_corpus.py::test_pinned_wikitext103_corpus_matches_
 `tokenizer_sha` (sha256 of GPT-2's `vocab.json`) =
 `196139668be63f3b5d6574427317ae82f612a97c5d1cdaf36ed2256dbf636783`.
 
+### Coverage note (WikiText-103 corpus — added post-review, 2026-07-03)
+The pinned windows are drawn deterministically from the START of the test split (~0.55% of its non-blank rows — effectively the first few contiguous articles), with strong inter-window correlation, inheriting the TinyStories corpus convention. This is statistically sound for our population claims, which quantify ONLY over the pinned finite corpus C (Hoeffding requires i.i.d. draws from C, nothing more) — but do not read "WikiText-103 test" as a broad or representative slice of that dataset. At ctx=8, 7/200 windows are heading-only markup rows (raw WikiText texture, expected). Follow-ups tracked: automated rebuild-determinism test; HF revision pin.
+
 ## Licensing gate (A4 HARD gate)
 
 Per corpus: source, licence (verbatim from the HF dataset card), what is
