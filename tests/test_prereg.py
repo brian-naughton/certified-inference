@@ -1,5 +1,7 @@
 import dataclasses
+import hashlib
 import json
+import sys
 
 import pytest
 
@@ -124,3 +126,180 @@ def test_verify_false_on_tampered_index_file(tmp_path):
     index_path.write_text(json.dumps(index_doc))
 
     assert prereg.verify(str(out_dir / "prereg.json"), corpus_path) is False
+
+
+def _resign_prereg(prereg_path):
+    """Recompute prereg_sha256 over the current file contents (a
+    self-consistent re-freeze, as a hostile-but-careful editor would do) and
+    write it back."""
+    prereg_dict = json.loads(prereg_path.read_text())
+    body = {k: v for k, v in prereg_dict.items() if k != "prereg_sha256"}
+    prereg_dict["prereg_sha256"] = hashlib.sha256(
+        prereg.canonical_json(body).encode()).hexdigest()
+    prereg_path.write_text(json.dumps(prereg_dict))
+    return prereg_dict
+
+
+def test_verify_false_on_edited_field_without_resigning(tmp_path):
+    """I2(a): editing a prereg.json field (n or seed) WITHOUT recomputing
+    prereg_sha256 must fail — the cheapest possible tamper."""
+    corpus_path, _ = _tiny_corpus(tmp_path)
+    out_dir = tmp_path / "run1"
+    prereg.freeze(_spec(seed=7), corpus_path, str(out_dir))
+
+    prereg_path = out_dir / "prereg.json"
+    prereg_dict = json.loads(prereg_path.read_text())
+    prereg_dict["n"] = prereg_dict["n"] + 1
+    prereg_path.write_text(json.dumps(prereg_dict))
+
+    assert prereg.verify(str(prereg_path), corpus_path) is False
+
+
+def test_verify_true_on_self_consistent_reedit_of_non_binding_field(tmp_path):
+    """I2(b): editing prereg.json AND recomputing prereg_sha256 (a
+    self-consistent re-freeze of a field that doesn't feed the corpus/index
+    binding, e.g. `model`) is EXPECTED to verify True.
+
+    This is not a bug: `verify()` can only witness internal arithmetic
+    consistency (the sha recomputes, the delta split still balances, the
+    index still re-draws bit-identically from the seed). It has no way to
+    see wall-clock history, so it cannot by itself distinguish "this was the
+    original frozen tuple" from "this was silently edited and re-signed
+    after the fact". Pre-commitment against exactly this kind of edit is
+    established externally — by publishing `prereg_sha256` as a
+    certificate's `prereg_ref` and by `prereg.json`'s own commit/publication
+    timestamp in git history — not by anything `verify()` reads from disk.
+    This test pins that semantic on purpose (see module docstring's WITNESS
+    SEMANTICS section and `verify`'s docstring).
+    """
+    corpus_path, _ = _tiny_corpus(tmp_path)
+    out_dir = tmp_path / "run1"
+    prereg.freeze(_spec(seed=7), corpus_path, str(out_dir))
+
+    prereg_path = out_dir / "prereg.json"
+    prereg_dict = json.loads(prereg_path.read_text())
+    prereg_dict["model"] = "a-completely-different-model"
+    prereg_path.write_text(json.dumps(prereg_dict))
+    _resign_prereg(prereg_path)
+
+    assert prereg.verify(str(prereg_path), corpus_path) is True
+
+
+def test_verify_false_on_tampered_index_with_recomputed_sha(tmp_path):
+    """I2(c): tampering sample-index.json's indices AND recomputing its own
+    sha (propagated into a re-signed prereg.json) still fails — caught by
+    the re-draw, not by either sha check, because the indices themselves are
+    not derivable from anything except the seed."""
+    corpus_path, n_windows = _tiny_corpus(tmp_path)
+    out_dir = tmp_path / "run1"
+    prereg.freeze(_spec(seed=7), corpus_path, str(out_dir))
+
+    index_path = out_dir / "sample-index.json"
+    index_doc = json.loads(index_path.read_text())
+    index_doc["indices"][0] = (index_doc["indices"][0] + 1) % n_windows
+    new_index_sha = hashlib.sha256(
+        prereg.canonical_json(index_doc).encode()).hexdigest()
+    index_path.write_text(json.dumps(index_doc))
+
+    prereg_path = out_dir / "prereg.json"
+    prereg_dict = json.loads(prereg_path.read_text())
+    prereg_dict["sample_index_sha256"] = new_index_sha
+    prereg_path.write_text(json.dumps(prereg_dict))
+    _resign_prereg(prereg_path)
+
+    # Both shas now check out internally; only the seed-redraw catches it.
+    assert prereg.verify(str(prereg_path), corpus_path) is False
+
+
+def test_verify_false_on_missing_index_file(tmp_path):
+    """I2(d): a missing sample-index.json must return False, not raise."""
+    corpus_path, _ = _tiny_corpus(tmp_path)
+    out_dir = tmp_path / "run1"
+    prereg.freeze(_spec(seed=7), corpus_path, str(out_dir))
+
+    (out_dir / "sample-index.json").unlink()
+
+    assert prereg.verify(str(out_dir / "prereg.json"), corpus_path) is False
+
+
+def test_verify_false_on_broken_delta_split_even_when_resigned(tmp_path):
+    """I1: verify() must itself re-check the delta-split invariant — a
+    re-frozen prereg.json with a broken delta budget must not pass just
+    because its own sha recomputes."""
+    corpus_path, _ = _tiny_corpus(tmp_path)
+    out_dir = tmp_path / "run1"
+    prereg.freeze(_spec(seed=7), corpus_path, str(out_dir))
+
+    prereg_path = out_dir / "prereg.json"
+    prereg_dict = json.loads(prereg_path.read_text())
+    prereg_dict["delta_split"] = {"phi1": 0.01, "phi2_joint": 0.01}  # sums to 0.02, not 0.05
+    prereg_path.write_text(json.dumps(prereg_dict))
+    _resign_prereg(prereg_path)
+
+    assert prereg.verify(str(prereg_path), corpus_path) is False
+
+
+def test_verify_false_on_index_doc_seed_mismatch_with_prereg(tmp_path):
+    """M4: sample-index.json's own embedded seed must match prereg.json's.
+    Tampering only the embedded metadata (not the indices themselves) would
+    otherwise sail through the sha + re-draw checks, since the re-draw uses
+    prereg.json's seed, not the index doc's — this is exactly the gap M4
+    closes."""
+    corpus_path, _ = _tiny_corpus(tmp_path)
+    out_dir = tmp_path / "run1"
+    prereg.freeze(_spec(seed=7), corpus_path, str(out_dir))
+
+    index_path = out_dir / "sample-index.json"
+    index_doc = json.loads(index_path.read_text())
+    index_doc["seed"] = index_doc["seed"] + 1  # indices left untouched
+    new_index_sha = hashlib.sha256(
+        prereg.canonical_json(index_doc).encode()).hexdigest()
+    index_path.write_text(json.dumps(index_doc))
+
+    prereg_path = out_dir / "prereg.json"
+    prereg_dict = json.loads(prereg_path.read_text())
+    prereg_dict["sample_index_sha256"] = new_index_sha
+    prereg_path.write_text(json.dumps(prereg_dict))
+    _resign_prereg(prereg_path)
+
+    assert prereg.verify(str(prereg_path), corpus_path) is False
+
+
+def test_freeze_records_python_version_in_both_artifacts(tmp_path):
+    """M2: both artifacts record [major, minor, micro] of the interpreter
+    that froze them."""
+    corpus_path, _ = _tiny_corpus(tmp_path)
+    out_dir = tmp_path / "run1"
+    doc = prereg.freeze(_spec(seed=7), corpus_path, str(out_dir))
+
+    index_doc = json.loads((out_dir / "sample-index.json").read_text())
+    expected = [sys.version_info.major, sys.version_info.minor, sys.version_info.micro]
+    assert doc["python_version"] == expected
+    assert index_doc["python_version"] == expected
+
+
+def test_verify_warns_not_fails_on_python_version_drift(tmp_path):
+    """M2: a recorded python_version that disagrees with the running
+    interpreter is benign drift (warn) as long as the verbatim index sha and
+    re-draw still check out — it must not fail verification by itself."""
+    corpus_path, _ = _tiny_corpus(tmp_path)
+    out_dir = tmp_path / "run1"
+    prereg.freeze(_spec(seed=7), corpus_path, str(out_dir))
+
+    index_path = out_dir / "sample-index.json"
+    index_doc = json.loads(index_path.read_text())
+    index_doc["python_version"] = [3, 1, 0]  # obviously-fake old version
+    new_index_sha = hashlib.sha256(
+        prereg.canonical_json(index_doc).encode()).hexdigest()
+    index_path.write_text(json.dumps(index_doc))
+
+    prereg_path = out_dir / "prereg.json"
+    prereg_dict = json.loads(prereg_path.read_text())
+    prereg_dict["sample_index_sha256"] = new_index_sha
+    prereg_dict["python_version"] = [3, 1, 0]
+    prereg_path.write_text(json.dumps(prereg_dict))
+    _resign_prereg(prereg_path)
+
+    with pytest.warns(UserWarning, match="Python"):
+        result = prereg.verify(str(prereg_path), corpus_path)
+    assert result is True

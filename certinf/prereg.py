@@ -13,16 +13,40 @@ strictly separated.
 
 RNG discipline: sample indices are drawn with
 `random.Random(seed).choices(range(n_windows), k=n)` — Python's stdlib
-Mersenne Twister, pinned by a plain integer seed. The `random` module's
-seeding + `choices` algorithm is part of its documented, stable contract,
-so this is deterministic and reproducible from the committed seed alone
-without pulling in numpy/torch RNG as a freeze dependency.
+Mersenne Twister. `random.Random(seed)`'s seeding is part of the documented,
+stable stdlib contract. The unweighted `choices()` draw is stable *in
+practice* across the CPython versions this module has been exercised
+against, but — unlike `Random.seed`/`random()` — it is not called out by the
+language reference as a permanent cross-version guarantee. Two things keep
+this from being a silent hazard: (1) the drawn indices are recorded verbatim
+in `sample-index.json`, so if a future interpreter's `choices()` ever drifted
+the *recorded* indices — not a re-derivation of them — remain the sample of
+record; drift would only ever be visible as a `verify()` witness failure
+(re-draw mismatch), never as a silently-different accepted sample. (2) the
+Python version used at freeze time is recorded in both artifacts (see
+`_python_version`) precisely so `verify()` can tell benign interpreter drift
+apart from tampering (see `verify`'s docstring).
+
+WITNESS SEMANTICS (read before trusting a `verify() == True`): `verify()`
+proves only that the committed artifacts (`prereg.json` + `sample-index.json`)
+are the deterministic, arithmetically-consistent output of the committed
+`seed` against the committed corpus — i.e. that nobody has silently edited
+the sample indices, the corpus binding, or the delta budget out from under
+the recorded hashes. It does NOT prove that the seed was chosen before the
+results were known: a `prereg.json` can be regenerated (edited fields +
+recomputed `prereg_sha256`) after the fact and still verify True, because
+`verify()` has no way to see wall-clock history. Pre-commitment — the actual
+A2 guarantee — is established externally, by publishing `prereg_sha256` as
+`prereg_ref` in a certificate and by the artifact's own commit/publication
+timestamp in version control, not by anything `verify()` can check from the
+files alone.
 
 The actual headline freeze (a real spec + real pinned corpus, committed
 before certification begins) happens in Task 2.1 — this module is only the
 machinery: `freeze` draws and commits the sample index + prereg tuple,
 `verify` re-draws from the committed seed and asserts the index file
-reproduces bit-identically (the freeze witness).
+reproduces bit-identically (the freeze witness), re-validates the delta-split
+budget, and cross-checks the two artifacts' bindings against each other.
 """
 from __future__ import annotations
 
@@ -30,6 +54,8 @@ import hashlib
 import json
 import os
 import random
+import sys
+import warnings
 from dataclasses import asdict, dataclass
 
 from certinf import corpus as corpus_mod
@@ -42,6 +68,15 @@ _REQUIRED_SPEC_FIELDS = (
 
 def canonical_json(obj) -> str:
     return json.dumps(obj, separators=(",", ":"), sort_keys=True)
+
+
+def _python_version() -> list[int]:
+    """`[major, minor, micro]` of the running interpreter — recorded in both
+    artifacts at freeze time as provenance only (M2). It is not part of the
+    RNG determinism contract: `verify()` treats a mismatch here as benign
+    drift, not tamper, as long as the verbatim indices still check out."""
+    v = sys.version_info
+    return [v.major, v.minor, v.micro]
 
 
 @dataclass(frozen=True)
@@ -83,7 +118,10 @@ def freeze(spec: dict, corpus_path: str, out_dir: str) -> dict:
     `prereg_sha256`, the sha256 of the canonical tuple) under `out_dir`, and
     returns the `prereg.json` dict. `prereg_sha256` is the value every
     headline certificate produced under this freeze must carry as
-    `prereg_ref` (see `certinf.schema.validate_headline_record`).
+    `prereg_ref` (see `certinf.schema.validate_headline_record`). Both
+    artifacts also record `python_version` (`[major, minor, micro]` of the
+    interpreter that drew them — M2), purely as provenance for `verify()`
+    to distinguish benign interpreter drift from tamper.
 
     `spec` must supply: model, checkpoint_sha256, context_length, P_max, n,
     delta, delta_split, seed, phi_definitions, escalation_policy.
@@ -116,6 +154,7 @@ def freeze(spec: dict, corpus_path: str, out_dir: str) -> dict:
     n = spec["n"]
     seed = spec["seed"]
     indices = _draw_sample_indices(seed, len(windows), n)
+    python_version = _python_version()
 
     os.makedirs(out_dir, exist_ok=True)
     index_doc = {
@@ -124,6 +163,7 @@ def freeze(spec: dict, corpus_path: str, out_dir: str) -> dict:
         "context_length": spec["context_length"],
         "n": n,
         "indices": indices,
+        "python_version": python_version,
     }
     index_path = os.path.join(out_dir, "sample-index.json")
     with open(index_path, "w") as f:
@@ -146,6 +186,7 @@ def freeze(spec: dict, corpus_path: str, out_dir: str) -> dict:
         sample_index_sha256=sample_index_sha256,
     )
     prereg_dict = prereg.to_dict()
+    prereg_dict["python_version"] = python_version
     prereg_dict["prereg_sha256"] = hashlib.sha256(
         canonical_json(prereg_dict).encode()).hexdigest()
 
@@ -159,9 +200,32 @@ def freeze(spec: dict, corpus_path: str, out_dir: str) -> dict:
 def verify(prereg_path: str, corpus_path: str) -> bool:
     """Re-draw from the committed `(seed, corpus_sha)` and assert the
     committed `sample-index.json` reproduces bit-identically — the freeze
-    witness (A2 precommit). Returns False (never raises) on any mismatch:
-    wrong corpus sha, missing/tampered index file, non-reproducing draw, or
-    a tampered `prereg.json` (its own `prereg_sha256` fails to recompute).
+    witness (A2 precommit). Also re-validates the delta-split invariant
+    (`abs(sum(delta_split.values()) - delta) <= 1e-12`) and cross-checks
+    `sample-index.json`'s own embedded `seed`/`corpus_sha256`/
+    `context_length` against `prereg.json`'s, so a self-consistently
+    re-hashed artifact whose budget or binding has silently drifted still
+    fails. Returns False (never raises) on any mismatch: wrong corpus sha,
+    missing/tampered index file, non-reproducing draw, a broken delta split,
+    a binding mismatch between the two artifacts, or a tampered `prereg.json`
+    (its own `prereg_sha256` fails to recompute).
+
+    IMPORTANT — what `True` does and doesn't mean: a `True` result proves
+    the artifacts are the deterministic, arithmetically-consistent output of
+    the committed seed against the committed corpus. It does NOT prove the
+    seed was chosen before the results were seen — `prereg.json` can be
+    edited and `prereg_sha256` recomputed after the fact, and a purely
+    internal check like this one cannot detect that (see the module
+    docstring's WITNESS SEMANTICS section, and the tamper tests in
+    `tests/test_prereg.py` that pin this deliberately). Pre-commitment is
+    established externally: by publishing `prereg_sha256` as a certificate's
+    `prereg_ref`, and by the artifact's own commit/publication timestamp in
+    version control.
+
+    A recorded `python_version` mismatch (M2) between either artifact and
+    the running interpreter triggers a `UserWarning` but does not by itself
+    fail verification — it is treated as benign interpreter drift, not
+    tamper, as long as the verbatim indices and re-draw still check out.
     """
     try:
         with open(prereg_path) as f:
@@ -173,6 +237,21 @@ def verify(prereg_path: str, corpus_path: str) -> bool:
     body = {k: v for k, v in prereg_dict.items() if k != "prereg_sha256"}
     if stored_prereg_sha != hashlib.sha256(
         canonical_json(body).encode()).hexdigest():
+        return False
+
+    # I1: re-validate the delta-split invariant. freeze() enforces this at
+    # write time, but verify() must not simply trust a re-frozen artifact —
+    # a self-consistently re-hashed prereg.json with a broken delta budget
+    # must fail the witness.
+    delta = prereg_dict.get("delta")
+    delta_split = prereg_dict.get("delta_split")
+    if not isinstance(delta_split, dict) or not isinstance(delta, (int, float)):
+        return False
+    try:
+        split_ok = abs(sum(delta_split.values()) - delta) <= 1e-12
+    except TypeError:
+        return False
+    if not split_ok:
         return False
 
     try:
@@ -197,6 +276,34 @@ def verify(prereg_path: str, corpus_path: str) -> bool:
         canonical_json(index_doc).encode()).hexdigest()
     if recomputed_index_sha != prereg_dict["sample_index_sha256"]:
         return False
+
+    # M4: cross-check sample-index.json's own embedded binding against
+    # prereg.json's. Without this, an index file whose *metadata* has been
+    # edited (but whose sha and indices were left alone, or vice versa) can
+    # silently disagree with the prereg tuple it is supposed to belong to.
+    if index_doc.get("seed") != prereg_dict.get("seed"):
+        return False
+    if index_doc.get("corpus_sha256") != prereg_dict.get("corpus_sha256"):
+        return False
+    if index_doc.get("context_length") != prereg_dict.get("context_length"):
+        return False
+
+    # M2: python-version drift is provenance, not a tamper signal — warn,
+    # don't fail. The determinism claim being witnessed here is the redraw
+    # below, not interpreter identity.
+    current_version = _python_version()
+    for label, doc in (("prereg.json", prereg_dict), ("sample-index.json", index_doc)):
+        recorded_version = doc.get("python_version")
+        if recorded_version is not None and recorded_version != current_version:
+            warnings.warn(
+                f"{label} was frozen under Python "
+                f"{'.'.join(str(x) for x in recorded_version)}; verifying "
+                f"under {'.'.join(str(x) for x in current_version)}. This is "
+                "benign interpreter drift (random.Random seeding/choices() "
+                "is documented-stable / stable-in-practice — see module "
+                "docstring), not a tamper signal.",
+                stacklevel=2,
+            )
 
     redrawn = _draw_sample_indices(prereg_dict["seed"], len(windows),
                                    prereg_dict["n"])
