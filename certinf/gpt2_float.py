@@ -23,7 +23,8 @@ import torch
 # LMCERT_HF_CACHE env var to point at an existing HF cache instead.
 _HF_CACHE = os.environ.get(
     "LMCERT_HF_CACHE",
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "hf_cache"),
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                 "data", "hf_cache"),
 )
 _GPT2_BIN_CANDIDATES = glob.glob(os.path.join(
     _HF_CACHE, "models--gpt2", "snapshots", "*", "pytorch_model.bin"))

@@ -12,8 +12,8 @@ from fractions import Fraction
 from math import isqrt
 from typing import List, Sequence, Tuple
 
-import exact
-from exact import Ival, _ceil_div, exp_bounds
+from certinf import exact
+from certinf.exact import Ival, _ceil_div, exp_bounds
 
 
 def _S() -> int:

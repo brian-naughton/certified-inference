@@ -4,8 +4,8 @@ import math
 import random
 from fractions import Fraction
 
-from exact import Ival
-import ival_ext as E
+from certinf.exact import Ival
+from certinf import ival_ext as E
 
 
 def ival_of(v: float) -> Ival:
@@ -87,7 +87,7 @@ print("softmax:", "OK" if good else "FAIL",
 # the self-consistency fallback the review allowed: the enclosure at P must
 # contain the enclosure computed at P+64 (a tighter, still-rigorous bracket).
 # --------------------------------------------------------------------------- #
-import exact
+from certinf import exact
 
 try:
     import mpmath
@@ -243,3 +243,9 @@ exact.set_precision(96)
 E._GELU_C = None
 
 print("ALL OK" if ok else "FAILURES PRESENT")
+
+
+def test_all_ok():
+    """pytest collection shim: the module body above runs at import time and
+    sets the module-global `ok`; this just asserts it (no new checks)."""
+    assert ok, "FAILURES PRESENT (see stdout above for the failing check)"

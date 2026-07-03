@@ -46,10 +46,10 @@ from typing import List, Sequence, Tuple
 
 import torch
 
-import exact
-from exact import Ival
-import ival_ext as E
-from gpt2_float import (GPT2_BIN, N_LAYERS, N_HEADS, D_MODEL, D_HEAD,
+from certinf import exact
+from certinf.exact import Ival
+from certinf import ival_ext as E
+from certinf.gpt2_float import (GPT2_BIN, N_LAYERS, N_HEADS, D_MODEL, D_HEAD,
                         PROMPT_IDS, load_sd, forward)
 
 LN_EPS = Fraction(1e-5)          # exact dyadic of the double (config eps)

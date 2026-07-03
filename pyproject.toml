@@ -1,0 +1,12 @@
+[project]
+name = "certinf"
+version = "0.0.1"
+description = "Certified next-token argmax for unmodified pretrained LayerNorm LMs"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+markers = [
+  "torch: needs pytorch (loader + conformance harness)",
+  "slow: long-running certified run or full grid cell",
+  "canary: widths-no-floor precision gate",
+]

@@ -1,0 +1,5 @@
+# The certified engine itself (certinf/exact.py, certinf/ival_ext.py) is
+# pure Python standard library — no dependencies on the certified path.
+pytest>=9,<10
+# torch>=2 + huggingface_hub + datasets are needed ONLY for the loader/
+# harness/corpus lanes; see docs/PROVENANCE.md. Kept out of the core install.
