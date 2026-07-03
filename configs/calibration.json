@@ -1,0 +1,28 @@
+{
+  "cells": [
+    {
+      "model": "tinystories",
+      "weights_path": "data/hf_cache/models--roneneldan--TinyStories-1M/snapshots/77f1b168e219585646439073245fe87e56b3023e/pytorch_model.bin",
+      "corpus_path": "certificates/corpora/tinystories-val.ids.json",
+      "context_length": 8,
+      "P": 256,
+      "n_samples": 100
+    },
+    {
+      "model": "tinystories",
+      "weights_path": "data/hf_cache/models--roneneldan--TinyStories-1M/snapshots/77f1b168e219585646439073245fe87e56b3023e/pytorch_model.bin",
+      "corpus_path": "certificates/corpora/tinystories-val.ids.json",
+      "context_length": 16,
+      "P": 256,
+      "n_samples": 100
+    },
+    {
+      "model": "tinystories",
+      "weights_path": "data/hf_cache/models--roneneldan--TinyStories-1M/snapshots/77f1b168e219585646439073245fe87e56b3023e/pytorch_model.bin",
+      "corpus_path": "certificates/corpora/tinystories-val.ids.json",
+      "context_length": 32,
+      "P": 256,
+      "n_samples": 100
+    }
+  ]
+}
