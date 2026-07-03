@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """Sha-pinned, torch-free-downstream hex export of pretrained checkpoints.
 
-torch is used HERE ONLY (house rule: the certified path — exact.py,
-ival_ext.py, interval_fwd.py, gpt2_interval.py, certify.py — stays stdlib).
+This module is the INTENDED torch boundary for the certified path. Current
+state (honest): interval_fwd.py, gpt2_interval.py and certify.py still load
+weights via torch directly — the torch-free trust boundary is closed by Task
+0.8's independent checker, which re-derives certificates from this hex export
+without touching those modules. Until then this artifact is a prerequisite,
+not yet the live weight source for certificate production.
 This module loads the pinned `pytorch_model.bin` for TinyStories-1M or
 GPT-2-small, verifies its sha256 against `CHECKPOINT_SHA256`, and dumps every
 named weight tensor as nested `float(v).hex()` strings.
