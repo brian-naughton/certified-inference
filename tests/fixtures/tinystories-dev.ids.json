@@ -1,0 +1,75 @@
+{
+ "meta": {
+  "source": "dev fixture for Task 1 unit tests \u2014 hand-assembled from the twice-adversarially-reviewed foothold prompt set (engine-seed/sweep.py, evidence/sweep_results.json); NOT the licensed production corpus (certificates/corpora/tinystories-val.ids.json is that)",
+  "license": "n/a (dev fixture, not distributed as a corpus artifact)",
+  "n_windows": {
+   "8": 4,
+   "16": 1
+  }
+ },
+ "corpus_sha256": "5743d9ddd90144a13d782b87394035c73ca58ff6cedb459da2f8a48e78471e76",
+ "windows": {
+  "8": [
+   [
+    7454,
+    2402,
+    257,
+    640,
+    612,
+    373,
+    257,
+    1310
+   ],
+   [
+    7454,
+    2402,
+    257,
+    640,
+    612,
+    373,
+    257,
+    1310
+   ],
+   [
+    262,
+    262,
+    262,
+    262,
+    262,
+    262,
+    262,
+    262
+   ],
+   [
+    39561,
+    44832,
+    27599,
+    47825,
+    31235,
+    48991,
+    36734,
+    41984
+   ]
+  ],
+  "16": [
+   [
+    7454,
+    2402,
+    257,
+    640,
+    612,
+    373,
+    257,
+    1310,
+    2576,
+    508,
+    5615,
+    287,
+    257,
+    1263,
+    2156,
+    351
+   ]
+  ]
+ }
+}
