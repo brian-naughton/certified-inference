@@ -84,9 +84,109 @@ known-certifiable baseline at a fixed index. Index 0 = the foothold seq-8
 "Once upon a time there was a little" prompt
 (`[7454, 2402, 257, 640, 612, 373, 257, 1310]`).
 
-**Not built in this pass:** `build_wikitext103` (the GPT-2 confirmation
-corpus, Task 0.6 proper) — GPT-2 is confirmation-only per the design spec
-(A5) and no Task 1 test requires it.
+`certificates/corpora/wikitext103-test.ids.json` (Task 0.6): 200
+non-overlapping windows each at context lengths {8, 16, 32}, built by
+`certinf.corpus.build_wikitext103` from the `wikitext` dataset's
+`wikitext-103-raw-v1` **test** split (GPT-2's confirmation-only corpus per
+spec A5, WikiText-103 chosen over OpenWebText per amendment A4 because
+OpenWebText's licence is ambiguous — see "Licensing gate (A4)" below),
+tokenised with GPT-2's own tokenizer. Fetched as the single test-split
+parquet file directly via `hf_hub_download`
+(`wikitext-103-raw-v1/test-00000-of-00001.parquet`, 733 KB) rather than
+through the `datasets` library's full builder pipeline, which would also
+pull the ~300 MB train split — same disk-budget rationale as the TinyStories
+corpus above (disk had 5 GB free at build time). Windows respect `text`-row
+boundaries (never straddle a row): `wikitext-103-raw-v1` rows are single
+lines — paragraphs, blank separators, or `= = Heading = = ` markers, not
+whole articles — so this mirrors `build_tinystories`'s per-unit windowing
+discipline rather than a single global concatenated stream.
+`corpus_sha256 = ff5d4fe62f865b34aa2ce53a79a0123ecbfe90f37d1d27dcc10a1717a0c1d374`
+(reproduced bit-for-bit on a second build from the pinned parquet + `gpt2`
+tokenizer — see `tests/test_corpus.py::test_pinned_wikitext103_corpus_matches_committed_sha`).
+`tokenizer_sha` (sha256 of GPT-2's `vocab.json`) =
+`196139668be63f3b5d6574427317ae82f612a97c5d1cdaf36ed2256dbf636783`.
+
+## Licensing gate (A4 HARD gate)
+
+Per corpus: source, licence (verbatim from the HF dataset card), what is
+committed, and why that is compliant. The committed artifact for both
+corpora is **token IDs only** (JSON integers) — never raw text, never the
+tokenizer's vocab/merge files.
+
+### TinyStories (validation split)
+
+- **Source**: `roneneldan/TinyStories`, HF dataset, `validation` split.
+- **Licence** (verified via `HfApi.dataset_info("roneneldan/TinyStories").cardData`,
+  Task 1): `cdla-sharing-1.0` (Community Data License Agreement – Sharing,
+  Version 1.0) — a permissive data-sharing licence that explicitly permits
+  redistributing the dataset and derivative/adapted data, including in
+  modified form, provided downstream recipients receive the data under the
+  same licence terms.
+- **Committed**: `certificates/corpora/tinystories-val.ids.json` — GPT-2
+  byte-level-BPE token-id windows only.
+- **Why compliant**: CDLA-Sharing-1.0 defines "Results" (§1.11) as
+  computational outputs carrying "no more than a *de minimis* portion of
+  the Data" (§3.5, unrestricted) — a full GPT-2-BPE token-id window is a
+  lossless, reversible re-encoding of the source text, so it does **not**
+  qualify as de minimis Results; it is treated conservatively as
+  "Enhanced Data" (modified/derived Data) instead. §2.1 grants the right
+  to Publish Data, including in modified form; §3.3 permits publishing
+  Enhanced Data provided it stays "Published under this Agreement" (same
+  licence downstream — hence `meta.license = "cdla-sharing-1.0"` on the
+  committed file itself) with "no further restrictions" added; §3.1
+  requires preserving attribution/notice to the Data Provider, which this
+  document (and the corpus file's `meta.source`/`meta.hf_repo`) supplies.
+  All three conditions are met — TinyStories redistribution is compliant.
+
+### WikiText-103 (GPT-2 confirmation corpus, test split)
+
+- **Source**: `wikitext` HF dataset, config `wikitext-103-raw-v1`, `test`
+  split. Chosen over OpenWebText (the GPT-2 training-data analogue) per
+  spec amendment A4, because OpenWebText's own licence status is
+  ambiguous (it is a third-party Reddit-URL scrape with no clear licence
+  grant from the underlying page owners); WikiText-103 is redistributable
+  and is the standard confirmation/held-out corpus for GPT-2-family
+  evaluation in the literature.
+- **Licence** (verified by fetching the dataset card directly — both the
+  YAML front-matter and prose body, `data/hf_cache/datasets--wikitext/.../README.md`,
+  fetched via `huggingface_hub.hf_hub_download("wikitext", "README.md",
+  repo_type="dataset")`): the card is **internally inconsistent**.
+  - YAML `license:` tags (machine-readable metadata, `HfApi.dataset_info`
+    `cardData`): `cc-by-sa-3.0`, `gfdl`.
+  - Prose "Licensing Information" section (verbatim): *"The dataset is
+    available under the [Creative Commons Attribution-ShareAlike License
+    (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/)."*
+  - Both readings are recorded verbatim in the corpus file's
+    `meta.license` field rather than picked arbitrarily. The discrepancy
+    does not change the compliance conclusion below: both CC BY-SA 3.0
+    and CC BY-SA 4.0 are attribution + share-alike licences that permit
+    redistributing derivative works, provided attribution is preserved
+    and the derivative carries a compatible share-alike licence forward.
+    (The `gfdl` YAML co-tag — GNU Free Documentation License, the
+    dual-licence Wikipedia itself uses for older content — was not
+    independently re-verified for this compliance conclusion; it is not
+    relied on, since the CC BY-SA reading alone is sufficient regardless
+    of which CC BY-SA version controls.) This is not an A4 HARD-gate stop
+    condition; Brian was not escalated to.
+- **Committed**: `certificates/corpora/wikitext103-test.ids.json` — GPT-2
+  byte-level-BPE token-id windows only.
+- **Why compliant**: same reasoning as TinyStories — the committed
+  artifact is integer token ids, a computed derivative of the licensed
+  text, not the text itself; this document (and the corpus file's own
+  `meta.license` field) carries attribution back to the `wikitext` dataset
+  and its CC BY-SA licence, and the corpus file's licence itself doubles
+  as the share-alike notice for anyone redistributing it further. No
+  verbatim article text, titles, or the tokenizer's vocabulary file are
+  committed.
+
+Build/regenerate either corpus with:
+
+```bash
+python3.11 -c "from certinf.corpus import build_tinystories as b; \
+b(out_path='certificates/corpora/tinystories-val.ids.json')"
+python3.11 -c "from certinf.corpus import build_wikitext103 as b; \
+b(out_path='certificates/corpora/wikitext103-test.ids.json')"
+```
 
 ## Environment (A1 transcript, `certinf.harness.transcript()`)
 

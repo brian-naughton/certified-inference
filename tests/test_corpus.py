@@ -54,3 +54,33 @@ def test_build_tinystories_real_slice(tmp_path):
     assert doc["meta"]["license"] == "cdla-sharing-1.0"
     loaded = corpus.load(str(out))
     assert loaded["corpus_sha256"] == doc["corpus_sha256"]
+
+
+@pytest.mark.torch
+def test_build_wikitext103_real_slice(tmp_path):
+    pytest.importorskip("transformers")
+    pytest.importorskip("pyarrow")
+    out = tmp_path / "wikitext103-test.ids.json"
+    doc = corpus.build_wikitext103(context_lengths=(8,), out_path=str(out),
+                                   n_windows=5)
+    assert len(doc["windows"][8]) == 5
+    for w in doc["windows"][8]:
+        assert len(w) == 8
+        assert all(isinstance(i, int) and 0 <= i < 50257 for i in w)
+    assert doc["meta"]["license"]
+    assert doc["meta"]["tokenizer_sha"]
+    loaded = corpus.load(str(out))
+    assert loaded["corpus_sha256"] == doc["corpus_sha256"]
+
+
+def test_pinned_wikitext103_corpus_matches_committed_sha():
+    path = "certificates/corpora/wikitext103-test.ids.json"
+    doc = corpus.load(path)
+    assert doc["corpus_sha256"] == corpus.corpus_sha256(doc["windows"])
+    assert doc["meta"]["license"]
+    for ctx_len_str, wins in doc["windows"].items():
+        ctx_len = int(ctx_len_str)
+        assert len(wins) > 0
+        for w in wins:
+            assert len(w) == ctx_len
+            assert all(isinstance(i, int) and 0 <= i < 50257 for i in w)
