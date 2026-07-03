@@ -89,10 +89,13 @@ def _certify_one(args) -> dict:
 
 
 def run_cell(model: str, weights_path: str, corpus_path: str,
-            context_length: int, P: int, n_samples: int, jobs: int = 1) -> dict:
+            context_length: int, P: int, n_samples: int, jobs: int = 1,
+            out_dir: str = "certificates/calibration") -> dict:
     """Certify `n_samples` windows at `context_length`, escalation capped at
     `P`, and return the A4 per-cell summary. Writes
-    `certificates/calibration/<model>_ctx<L>_P<P>.jsonl`."""
+    `<out_dir>/<model>_ctx<L>_P<P>.jsonl` (default
+    `certificates/calibration/`; tests pass a tmp dir so test output never
+    lands among the real committed calibration artifacts)."""
     corpus_doc = corpus.load(corpus_path)
     windows = corpus_doc["windows"].get(str(context_length))
     if windows is None:
@@ -117,7 +120,7 @@ def run_cell(model: str, weights_path: str, corpus_path: str,
         records = [_certify_one(t) for t in tasks]
     cell_runtime_s = time.time() - t0
 
-    out_path = f"certificates/calibration/{model}_ctx{context_length}_P{P}.jsonl"
+    out_path = os.path.join(out_dir, f"{model}_ctx{context_length}_P{P}.jsonl")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "w") as f:
         for rec in records:

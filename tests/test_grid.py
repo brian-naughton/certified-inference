@@ -14,10 +14,10 @@ def test_bootstrap_ci_brackets_point_estimate():
     assert lo <= point <= hi
 
 
-def test_run_cell_returns_summary_with_required_keys():
+def test_run_cell_returns_summary_with_required_keys(tmp_path):
     summary = grid.run_cell(
         "tinystories", MODEL_BIN, CORPUS, context_length=8, P=192,
-        n_samples=4, jobs=1,
+        n_samples=4, jobs=1, out_dir=str(tmp_path),
     )
     for key in ("model", "context_length", "P", "n_samples", "n_certified",
                "n_abstained", "all_prereg_ref_null", "required_P",
@@ -35,10 +35,10 @@ def test_run_cell_returns_summary_with_required_keys():
         assert rec["status"] in {"CERTIFIED", "ABSTAIN"}
 
 
-def test_run_cell_multiworker_matches_single_worker_record_count():
+def test_run_cell_multiworker_matches_single_worker_record_count(tmp_path):
     summary = grid.run_cell(
         "tinystories", MODEL_BIN, CORPUS, context_length=8, P=192,
-        n_samples=2, jobs=2,
+        n_samples=2, jobs=2, out_dir=str(tmp_path),
     )
     assert summary["n_samples"] == 2
     with open(summary["records_path"]) as f:
