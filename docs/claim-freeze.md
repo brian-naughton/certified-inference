@@ -210,3 +210,16 @@ The Hoeffding lower bound on an all-success run (`k = n`) at `δ₁ = 0.025` is
   all-success headline at `δ₁ = 0.025`.
 - No adaptive stopping, no `n`-extension, no post-hoc promotion: `n` is fixed at
   commit 1 and the run is carried to that `n` regardless of interim observations.
+
+---
+
+## RESULTS — bound post-run, post-checker (2026-07-04)
+
+The frozen template above predates these numbers (see commit history: the pre-registration commit contains no results). Run + verification chronology: headline run completed n=1000 in 8,332 s (log: docs/logs/headline_run.log); independent torch-free checker re-derived ALL 1000 records from the hex weight export with A6 completeness against the frozen sample multiset — "VERIFIED (1000 records re-derived from hex weights, all records, headline)" (log: docs/logs/headline_check.log).
+
+**Bound values:** k = 1000/1000 (φ₁: certified, unique full-vocabulary exact-real argmax at P ≤ 256; in fact every sample certified within the attempted ladder, max P used 192); k₂ = 1000/1000 (φ₂_joint: certified AND pinned-harness top-1 agreement); abstentions: none.
+
+**The claims (per the frozen text, Hoeffding, exact δ):**
+- **φ₁ (title):** with confidence ≥ 97.5% (δ₁ = 1/40), at least **95.70%** of the pinned finite corpus C is certifiable under this engine and escalation policy (L₁ = 1 − 0.042947 = 0.957053, displayed rounded down).
+- **φ₂_joint (subtitle):** with confidence ≥ 97.5% (δ₂ = 1/40), on at least **95.70%** of C the certified exact-real argmax exists AND the pinned float32 harness agrees with it (L₂ = 0.957053; determinism gate: PASSED, bit-identical transcripts).
+- Lean status: the statistical lower-bound theorem is **kernel-checked** (`hoeffding_lower_confidence_count`, axioms [propext, Classical.choice, Quot.sound]); per-sample facts are interval-certified and torch-free re-checked; sampling and harness provenance are audited.

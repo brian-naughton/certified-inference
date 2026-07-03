@@ -1,0 +1,46 @@
+[headline] model=tinystories n=1000 ctx=16 P_grid=[128, 160, 192] P_max=256 jobs=6
+[headline] prereg_ref=7f846ddb8fecc01c9d047e41ef64f1bf0efe1eddce9715f6654614beb770ea09
+[headline] weights=/Users/briannaughton/maths_problems/certified-inference/data/hf_cache/models--roneneldan--TinyStories-1M/snapshots/77f1b168e219585646439073245fe87e56b3023e/pytorch_model.bin
+[headline] out=certificates/headline/tinystories-headline.cert.jsonl
+  [  25/1000] k(phi1)=25 k_joint=25 elapsed=196s eta=7644s
+  [  50/1000] k(phi1)=50 k_joint=50 elapsed=370s eta=7024s
+  [  75/1000] k(phi1)=75 k_joint=75 elapsed=545s eta=6724s
+  [ 100/1000] k(phi1)=100 k_joint=100 elapsed=723s eta=6503s
+  [ 125/1000] k(phi1)=125 k_joint=125 elapsed=905s eta=6332s
+  [ 150/1000] k(phi1)=150 k_joint=150 elapsed=1101s eta=6237s
+  [ 175/1000] k(phi1)=175 k_joint=175 elapsed=1314s eta=6192s
+  [ 200/1000] k(phi1)=200 k_joint=200 elapsed=1521s eta=6084s
+  [ 225/1000] k(phi1)=225 k_joint=225 elapsed=1722s eta=5931s
+  [ 250/1000] k(phi1)=250 k_joint=250 elapsed=1931s eta=5792s
+  [ 275/1000] k(phi1)=275 k_joint=275 elapsed=2168s eta=5716s
+  [ 300/1000] k(phi1)=300 k_joint=300 elapsed=2379s eta=5552s
+  [ 325/1000] k(phi1)=325 k_joint=325 elapsed=2597s eta=5393s
+  [ 350/1000] k(phi1)=350 k_joint=350 elapsed=2812s eta=5222s
+  [ 375/1000] k(phi1)=375 k_joint=375 elapsed=3047s eta=5078s
+  [ 400/1000] k(phi1)=400 k_joint=400 elapsed=3267s eta=4901s
+  [ 425/1000] k(phi1)=425 k_joint=425 elapsed=3513s eta=4753s
+  [ 450/1000] k(phi1)=450 k_joint=450 elapsed=3736s eta=4566s
+  [ 475/1000] k(phi1)=475 k_joint=475 elapsed=3942s eta=4357s
+  [ 500/1000] k(phi1)=500 k_joint=500 elapsed=4151s eta=4151s
+  [ 525/1000] k(phi1)=525 k_joint=525 elapsed=4361s eta=3946s
+  [ 550/1000] k(phi1)=550 k_joint=550 elapsed=4573s eta=3742s
+  [ 575/1000] k(phi1)=575 k_joint=575 elapsed=4793s eta=3543s
+  [ 600/1000] k(phi1)=600 k_joint=600 elapsed=5022s eta=3348s
+  [ 625/1000] k(phi1)=625 k_joint=625 elapsed=5234s eta=3140s
+  [ 650/1000] k(phi1)=650 k_joint=650 elapsed=5448s eta=2934s
+  [ 675/1000] k(phi1)=675 k_joint=675 elapsed=5665s eta=2728s
+  [ 700/1000] k(phi1)=700 k_joint=700 elapsed=5870s eta=2516s
+  [ 725/1000] k(phi1)=725 k_joint=725 elapsed=6076s eta=2305s
+  [ 750/1000] k(phi1)=750 k_joint=750 elapsed=6310s eta=2103s
+  [ 775/1000] k(phi1)=775 k_joint=775 elapsed=6507s eta=1889s
+  [ 800/1000] k(phi1)=800 k_joint=800 elapsed=6702s eta=1676s
+  [ 825/1000] k(phi1)=825 k_joint=825 elapsed=6897s eta=1463s
+  [ 850/1000] k(phi1)=850 k_joint=850 elapsed=7101s eta=1253s
+  [ 875/1000] k(phi1)=875 k_joint=875 elapsed=7300s eta=1043s
+  [ 900/1000] k(phi1)=900 k_joint=900 elapsed=7524s eta=836s
+  [ 925/1000] k(phi1)=925 k_joint=925 elapsed=7732s eta=627s
+  [ 950/1000] k(phi1)=950 k_joint=950 elapsed=7934s eta=418s
+  [ 975/1000] k(phi1)=975 k_joint=975 elapsed=8141s eta=209s
+  [1000/1000] k(phi1)=1000 k_joint=1000 elapsed=8331s eta=0s
+[headline] DONE n=1000 k(phi1)=1000 k_joint=1000 abstains={} runtime=8332s
+[headline] wrote certificates/headline/tinystories-headline.cert.jsonl + certificates/headline/tinystories-headline.cert.meta.json
