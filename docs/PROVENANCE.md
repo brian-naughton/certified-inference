@@ -224,3 +224,6 @@ never headline samples; no `prereg_ref` was set for any of these). It
 confirms the harness+certifier wiring end-to-end and that `phi2_joint` fills
 correctly before Task 1.3's calibration grid and Phase 2's pre-registered
 headline runs.
+
+## Sampling bridge — AUDITED, not kernel-checked (Hoeffding wrapper hypotheses)
+The Lean theorem `hoeffding_lower_confidence` assumes: (1) mutual independence (`iIndepFun`) — discharged because the frozen design draws indices i.i.d. uniformly WITH REPLACEMENT from the pinned corpus C (without replacement would be hypergeometric-dependent and break this hypothesis; the freeze forbids deduplication); (2) common mean μ[Bᵢ] = p — discharged because each Bᵢ is a deterministic {0,1} predicate of the drawn index, so its expectation under a uniform draw equals the population φ-rate on C, identical for every draw; (3) values in [0,1] and measurability — trivial for indicator functions on a finite space. These discharges are audited provenance (this document + the committed prereg artifacts + the seeded re-draw witness), not formalised in Lean; the kernel-checked object is the statistical inequality itself.

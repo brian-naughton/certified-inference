@@ -53,6 +53,7 @@ jobs:
   # certified-grokking's verify.yml: cache elan + `lake build`, assert the
   # axiom-audit line and grep out any sorryAx.
   lean:
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -76,7 +77,8 @@ jobs:
       - name: Assert axiom audit and no sorry
         working-directory: proofs
         run: |
-          if grep -q "sorryAx" build.log; then
+          if grep -c "depends on axioms: \[propext, Classical.choice, Quot.sound\]" build.log | grep -q "^2$" || { echo "AXIOM AUDIT FAILED: expected exactly 2 clean axiom lines"; exit 1; }
+          ! grep -q "sorryAx\|ofReduceBool" build.log build.log; then
             echo "sorryAx found in build log" >&2
             exit 1
           fi
