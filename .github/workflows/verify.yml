@@ -48,12 +48,11 @@ jobs:
             --cert certificates/calibration/tinystories_ctx8_P256.jsonl \
             --sample 50
 
-  # Lean proof lane — added/enabled in Task 2.4 (the `circuit == spec` proof and
-  # its axiom audit do not exist yet in Phase 0). Mirrors certified-grokking's
-  # verify.yml: cache elan + `lake build`, assert the axiom-audit line and grep
-  # out any sorryAx. Disabled until the proofs/ tree lands.
+  # Lean proof lane — enabled in Task 2.4: kernel-checks the generic Hoeffding
+  # lower-confidence theorem in proofs/ (hoeffding_lower_confidence). Mirrors
+  # certified-grokking's verify.yml: cache elan + `lake build`, assert the
+  # axiom-audit line and grep out any sorryAx.
   lean:
-    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
