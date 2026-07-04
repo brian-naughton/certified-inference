@@ -234,3 +234,55 @@ The frozen template above predates these numbers (see commit history: the pre-re
 - **φ₁ (title):** with confidence ≥ 97.5% (δ₁ = 1/40), at least **95.70%** of the pinned finite corpus C is certifiable under this engine and escalation policy (L₁ = 1 − 0.042947 = 0.957053, displayed rounded down).
 - **φ₂_joint (subtitle):** with confidence ≥ 97.5% (δ₂ = 1/40), on at least **95.70%** of C the certified exact-real argmax exists AND the pinned float32 harness agrees with it (L₂ = 0.957053; determinism gate: PASSED, bit-identical transcripts).
 - Lean status: the statistical lower-bound theorem is **kernel-checked** (`hoeffding_lower_confidence_count`, axioms [propext, Classical.choice, Quot.sound]); per-sample facts are interval-certified and torch-free re-checked; sampling and harness provenance are audited.
+
+---
+
+## R2 — replication under protocol v2 (freeze 2026-07-04)
+
+An independent replication of the headline, frozen under **protocol v2**: the freeze
+commit is **pushed publicly before any R2 certificate exists**, so GitHub's server-side
+receive timestamp gives third-party attestation that the parameters were bound before the
+run started. This upgrades the pre-commitment evidence relative to run 1, whose freeze and
+results were pushed in a single batch after results existed (see `docs/threat-model.md`).
+
+R2 re-uses the **same pinned corpus, model, checkpoint, sample size, escalation ladder,
+budget split, φ definitions and escalation policy** as run 1, verbatim; the **only**
+deliberate change is the seed — the nothing-up-my-sleeve convention pins it to the date of
+*this* freeze, so the draw is a genuinely fresh, un-shopped sample of `C`.
+
+### Parameters bound (freeze commit — no results present)
+
+| Slot | Frozen value |
+|---|---|
+| artifact dir | `certificates/prereg/headline-r2/` (`prereg.json` + `sample-index.json`) |
+| model | TinyStories-1M (loader key `tinystories`) |
+| `C` — `corpus_sha256` | `de3579e9051d85980ff6154b1be980fc5bd3f7a433945a61c53c06313c6b42bd` (`certificates/corpora/tinystories-val.ids.json`, ctx 16, 200 windows) — **identical to run 1** |
+| `checkpoint_sha256` | `07f9609ea882b8163ff3b23d40e2b82cb715d409631beb15c84b164f3877dae7` — **identical to run 1** |
+| **`prereg_sha256`** (each R2 record's `prereg_ref`) | `c42281fd7a091b67deae15e1bd19dea58146f2e2b76422ecfa75ccf215134be9` |
+| `sample_index_sha256` | `e0164eec1fbf10d71323e691b42f4363458918b15b2bf8c80668e4e0d54f74e0` |
+| `n` | `1000` (with replacement; **200 distinct** indices in `[0, 199]`, duplicates kept — never deduplicated) |
+| **`seed`** | `20260704` — nothing-up-my-sleeve: the date of *this* freeze, 2026-07-04, declared as such (the only change from run 1) |
+| `P_max` | `256` (escalation ladder `P_grid = [128, 160, 192]`, capped at `P_max`; abstain-by-width only) — verbatim from run 1 |
+| `δ` | `1/20` (exact rational) |
+| `δ₁` (φ₁) | `1/40` (exact rational) |
+| `δ₂` (φ₂_joint) | `1/40` (exact rational) |
+| `ε₁ = ε(n, δ₁)` | `sqrt(ln(40) / 2000) = 0.042947` — display rounded **UP** ⇒ any `L₁ = k/n − ε₁` display rounds **DOWN** |
+| `L₁` target if `k = n = 1000` | `1 − ε₁ ≥ 0.9570` → headline **"at least 95.70%"** at `δ₁ = 1/40` (display-rounded **DOWN**, safe-direction rule) |
+| φ definitions / escalation policy | **copied verbatim** from run 1's frozen `prereg.json` |
+| `prereg.verify()` | **True** |
+
+### Results slots — EMPTY at freeze
+
+| Slot | Value |
+|---|---|
+| `k` (φ₁ count) | *bound post-run* |
+| `k₂` (φ₂_joint count) | *bound post-run* |
+| observed `L₁`, `L₂` | *bound post-run* |
+| abstention taxonomy | *bound post-run* |
+
+**This freeze commit is pushed to `origin main` (and tagged `prereg-r2`) BEFORE any R2
+certificate exists.** No `certificates/headline-r2/` results are present in this commit;
+`git show --stat` on the freeze commit contains exactly the two R2 prereg artifacts and
+this file. Only after the freeze is pushed does the R2 run begin — its records land in a
+later commit, after the independent `--prereg` checker passes, with no population claim
+before that checker is green.

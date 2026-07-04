@@ -1,0 +1,56 @@
+{
+ "prereg_format_version": 2,
+ "model": "tinystories",
+ "checkpoint_sha256": "07f9609ea882b8163ff3b23d40e2b82cb715d409631beb15c84b164f3877dae7",
+ "corpus_sha256": "de3579e9051d85980ff6154b1be980fc5bd3f7a433945a61c53c06313c6b42bd",
+ "context_length": 16,
+ "P_max": 256,
+ "n": 1000,
+ "delta": [
+  "1",
+  "20"
+ ],
+ "delta_split": {
+  "phi1": [
+   "1",
+   "40"
+  ],
+  "phi2_joint": [
+   "1",
+   "40"
+  ]
+ },
+ "hoeffding": {
+  "formula": "epsilon = sqrt(ln(1/delta) / (2*n))",
+  "n": 1000,
+  "delta": [
+   "1",
+   "20"
+  ],
+  "epsilon_display": "0.038703",
+  "epsilon_display_dp": 6,
+  "epsilon_display_rounding": "up",
+  "display_note": "epsilon is rounded UP so any displayed population lower bound k/n - epsilon rounds DOWN \u2014 the display never overstates the certified rate. The exact record is (n, delta); the string is advisory."
+ },
+ "seed": 20260704,
+ "phi_definitions": {
+  "phi1": "argmax certified at P <= P_max",
+  "phi2_joint": "pinned float32 top-1 agrees with certified exact-real top-1"
+ },
+ "escalation_policy": {
+  "P_grid": [
+   128,
+   160,
+   192
+  ],
+  "P_max": 256,
+  "policy": "escalate P over P_grid capped at P_max; continue on abstain_reason=width (abstain-by-width only), terminal on near-tie/guard"
+ },
+ "sample_index_sha256": "e0164eec1fbf10d71323e691b42f4363458918b15b2bf8c80668e4e0d54f74e0",
+ "python_version": [
+  3,
+  11,
+  14
+ ],
+ "prereg_sha256": "c42281fd7a091b67deae15e1bd19dea58146f2e2b76422ecfa75ccf215134be9"
+}
