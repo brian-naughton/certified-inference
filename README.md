@@ -115,7 +115,7 @@ python3.11 certificates/check.py \
 
 Trusting this buys you: a sample of the committed certificate records is re-derived bit-identically from the 65 MB committed hex weights and the committed token-id corpus alone — the certificates are not fabricated.
 
-**Rung 3 — the full headline re-derivation + the population claim** (tens of minutes at `--jobs 6`; the 300-record calibration re-derivation took ~14 min, and the headline is 1000 records):
+**Rung 3 — the full headline re-derivation + the population claim** (~26 min at `--jobs 6`, measured on the full 1000-record pass under load — sharing the box with a concurrent run; the 300-record calibration re-derivation took ~14 min):
 
 ```
 python3.11 certificates/check.py \
