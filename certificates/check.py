@@ -44,6 +44,14 @@ context_length, P_max) tuple matches every record. A CALIBRATION cert (every
 record but makes no coverage claim. Any cert run with `--sample` prints an
 honest "sampled" VERIFIED line and asserts no completeness.
 
+Population claim (Task 2.5). Immediately after a full (non-sampled) headline
+VERIFIED pass, the checker itself prints the Hoeffding population-claim line
+for each pre-registered property (phi1, phi2_joint) via
+`certinf.bound_report`: it counts successes over the FULL, just-re-derived
+record set and applies each property's frozen `delta_split` share — so the
+checker's own re-derivation, not the certificate generator, is the last word
+on the number a reader would quote. A `--sample` run never prints this line.
+
 Torch-free note (adaptation, 2026-07-03): the interval ENGINE
 (`certinf.interval_fwd`) imports torch at module scope and prepares weights
 from a `torch.load`ed state dict, so it cannot be imported here. The audited
@@ -68,6 +76,7 @@ from fractions import Fraction
 
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent.parent))
 
+from certinf import bound_report                                # noqa: E402  (Task 2.5)
 from certinf import corpus as corpus_mod                       # noqa: E402
 from certinf import exact                                      # noqa: E402  (stdlib)
 from certinf import ival_ext as E                              # noqa: E402  (stdlib)
@@ -369,6 +378,29 @@ def _report(results, sampled: bool, headline: bool) -> int:
     return 0
 
 
+def _print_population_claims(recs: list[dict], prereg_dict: dict) -> None:
+    """Print the Hoeffding population-claim line per pre-registered property
+    (Task 2.5).
+
+    Runs only after a full (non-sampled) headline VERIFIED pass, so the
+    checker's own re-derivation — not the certificate generator — is the last
+    word on the number a reader would quote: for each property in the
+    frozen `delta_split` (phi1, phi2_joint) it counts successes over the
+    FULL, A6-complete record set the checker just re-derived and reports
+    `certinf.bound_report`'s Hoeffding lower bound at that property's
+    pre-registered delta share.
+    """
+    n = prereg_dict["n"]
+    for prop in ("phi1", "phi2_joint"):
+        pair = prereg_dict["delta_split"].get(prop)
+        if pair is None:
+            continue
+        delta = Fraction(int(pair[0]), int(pair[1]))
+        k = sum(1 for r in recs if r.get(prop) is True)
+        report = bound_report.hoeffding_lower_bound(n=n, k=k, delta=delta)
+        print(report.line(property_name=prop))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Independent torch-free certificate checker")
     ap.add_argument("--weights", required=True, help="hex weight export (certinf.loader)")
@@ -436,7 +468,18 @@ def main() -> int:
                      initargs=(args.weights,)) as pool:
             results = pool.map(_check_one, todo, chunksize=1)
 
-    return _report(results, args.sample, headline)
+    rc = _report(results, args.sample, headline)
+
+    # Task 2.5: announce the verified population bound. Guarded to headline
+    # mode with full (non-sampled) A6 completeness — a --sample run only
+    # re-derives a subset of records, so it must never print a population
+    # number.
+    if rc == 0 and headline and not args.sample:
+        with open(_prereg_path(args.prereg)) as f:
+            prereg_dict = json.load(f)
+        _print_population_claims(recs, prereg_dict)
+
+    return rc
 
 
 if __name__ == "__main__":

@@ -184,6 +184,56 @@ def test_verified_headline_complete(tmp_path):
     assert "VERIFIED" in out and "headline" in out
 
 
+# --------------------------------------------------------------------------- #
+# Task 2.5: checker announces the verified population bound
+# --------------------------------------------------------------------------- #
+def test_verified_headline_complete_prints_population_claim_lines(tmp_path):
+    """After a full (non-sampled), A6-complete headline VERIFIED pass, the
+    checker prints one Hoeffding population-claim line per pre-registered
+    property (phi1, phi2_joint) — the checker's own re-derivation is the
+    last word on the number a reader would quote."""
+    corpus_path, csha, real = _fixture_corpus(tmp_path, [0])
+    pj, psha = _freeze_matching(tmp_path, corpus_path, n=1, target_multiset=[0])
+    rec = _headline_rec(real[0], csha, psha)
+    rec["prompt_index"] = 0
+    cert = tmp_path / "headline.jsonl"
+    _write_cert(cert, [rec])
+    rc, out = _run(corpus=corpus_path, cert=str(cert), prereg=pj)
+    assert rc == 0, out
+    assert out.count("population claim: p >=") == 2
+    assert "(phi1)" in out
+    assert "(phi2_joint)" in out
+    # the printed line comes strictly after the VERIFIED line (checker's word
+    # is the last word)
+    assert out.index("VERIFIED") < out.index("population claim")
+
+
+def test_headline_sampled_mode_suppresses_population_claim(tmp_path):
+    """A --sample run only re-derives a subset of records and never asserts
+    A6 completeness, so it must never print a population claim even though
+    it VERIFIEDs."""
+    corpus_path, csha, real = _fixture_corpus(tmp_path, [0])
+    pj, psha = _freeze_matching(tmp_path, corpus_path, n=1, target_multiset=[0])
+    rec = _headline_rec(real[0], csha, psha)
+    rec["prompt_index"] = 0
+    cert = tmp_path / "headline.jsonl"
+    _write_cert(cert, [rec])
+    rc, out = _run(corpus=corpus_path, cert=str(cert), prereg=pj, sample=1)
+    assert rc == 0, out
+    assert "VERIFIED" in out
+    assert "population claim: p >=" not in out
+
+
+def test_verified_calibration_prints_no_population_claim(tmp_path):
+    """A calibration cert (no population claim, A2) never prints a
+    population-claim line."""
+    cert = tmp_path / "calib.jsonl"
+    _write_cert(cert, _real_records(1))
+    rc, out = _run(corpus=_CORPUS, cert=str(cert))
+    assert rc == 0, out
+    assert "population claim: p >=" not in out
+
+
 def test_headline_dropped_record_fails(tmp_path):
     """A headline cert that silently drops a frozen index fails A6 (no
     --sample), even though the surviving record re-derives fine."""
