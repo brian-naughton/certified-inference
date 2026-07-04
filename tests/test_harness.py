@@ -1,7 +1,11 @@
 import os
 
-from certinf import harness
-from certinf.float_fwd import MODEL_BIN, PROMPT_IDS
+import pytest
+
+torch = pytest.importorskip("torch")
+
+from certinf import harness  # noqa: E402
+from certinf.float_fwd import MODEL_BIN, PROMPT_IDS  # noqa: E402
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _TS_VAL_CORPUS = os.path.join(

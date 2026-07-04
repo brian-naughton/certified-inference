@@ -1,28 +1,28 @@
-"""Rigorous interval arithmetic core for the certified-grokking project.
+"""Rigorous interval arithmetic core for the certified-inference project.
 
-The certified object is the Nanda et al. grokking checkpoint (a TinyTransformer
-trained on modular addition, mod 113). This module provides the trusted
-interval-arithmetic primitives — exact-rational interval endpoints, outward
-rounding, and a rigorous `exp` enclosure — that later tasks use to prove (not
-just observe) properties of the model's forward pass. The only transcendental
-function on the decision path is `exp`, inside the attention softmax. Unlike
-the sibling `vcirc` project (where `d_head` is a perfect square and the
-attention scale `1/sqrt(d_head)` is therefore an exact rational), here
-`d_head = 32` is not a perfect square: `1/sqrt(32)` is irrational, so this
-module additionally provides `inv_sqrt_ival` — a rigorous rational enclosure
-of `1/sqrt(n)` for positive integers `n` — to bound the attention scale.
+The certified object is a small GPT-style language model's forward pass
+(TinyStories-1M / GPT-2-small), evaluated as exact-real arithmetic over its
+float32 weights. This module provides the trusted fixed-point interval
+primitives — exact-rational interval endpoints, outward rounding, and a
+rigorous `exp` enclosure — that the certificate generator and the independent
+checker both build on to prove (not just observe) that a claimed top-token
+margin holds for the exact-real model. The only transcendental function on
+the decision path is `exp`, inside the attention softmax; GELU and LayerNorm
+enclosures built on top of this core live in `certinf/ival_ext.py`.
 
 Representation. Every interval endpoint is an integer in units of ``2**-P``
 (``P = PRECISION`` bits): the value ``v`` is stored as the integer
 ``round(v * 2**P)``. All operations round **outward** (lower endpoints toward
 -inf, upper endpoints toward +inf) using exact integer floor/ceil division, so
-the result is always a rigorous enclosure of the true real value — just with a
-bounded denominator (``2**P``) that keeps numerators from ballooning through
-the layers. Increasing ``P`` only tightens the width.
+the result is always a rigorous enclosure of the true real value. Increasing
+``P`` only tightens the width; `set_precision` is the single knob the
+generator and checker share, so a certificate's precision is always explicit.
 
 This is a *verified enclosure* of exact-real quantities; outputs are rigorous
 rational bounds. Pure standard library — integers and `fractions.Fraction`
-only (no torch, no numpy).
+only (no torch, no numpy) — the torch-free trust boundary re-derived in CI.
+
+Heritage: adapted from the verified-circuits/certified-grokking line.
 """
 
 from __future__ import annotations

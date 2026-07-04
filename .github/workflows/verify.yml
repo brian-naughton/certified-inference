@@ -40,7 +40,7 @@ jobs:
         # the 65 MB committed hex weights (certificates/tinystories-1M.weights.json,
         # in-repo) + the committed corpus — no torch. --sample 50 checks every
         # 50th record (2 of 100) to keep CI fast; the full grid re-derivation is
-        # run offline (see docs / task-0.8 report).
+        # run offline (see the project's internal task tracking).
         run: |
           python certificates/check.py \
             --weights certificates/tinystories-1M.weights.json \
@@ -77,8 +77,5 @@ jobs:
       - name: Assert axiom audit and no sorry
         working-directory: proofs
         run: |
-          if grep -c "depends on axioms: \[propext, Classical.choice, Quot.sound\]" build.log | grep -q "^2$" || { echo "AXIOM AUDIT FAILED: expected exactly 2 clean axiom lines"; exit 1; }
-          ! grep -q "sorryAx\|ofReduceBool" build.log build.log; then
-            echo "sorryAx found in build log" >&2
-            exit 1
-          fi
+          grep -c "depends on axioms: \[propext, Classical.choice, Quot.sound\]" build.log | grep -q "^2$" || { echo "AXIOM AUDIT FAILED"; exit 1; }
+          if grep -q "sorryAx\|ofReduceBool" build.log; then echo "FORBIDDEN AXIOM/SORRY FOUND"; exit 1; fi

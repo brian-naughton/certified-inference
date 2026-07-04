@@ -4,8 +4,10 @@ from fractions import Fraction
 
 import pytest
 
-from certinf import certify, schema
-from certinf.float_fwd import MODEL_BIN
+torch = pytest.importorskip("torch")
+
+from certinf import certify, schema  # noqa: E402
+from certinf.float_fwd import MODEL_BIN  # noqa: E402
 
 FIXTURE_CORPUS = os.path.join(os.path.dirname(__file__), "fixtures",
                               "tinystories-dev.ids.json")

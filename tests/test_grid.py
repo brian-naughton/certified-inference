@@ -1,7 +1,11 @@
 import json
 
-from certinf import grid
-from certinf.float_fwd import MODEL_BIN
+import pytest
+
+torch = pytest.importorskip("torch")
+
+from certinf import grid  # noqa: E402
+from certinf.float_fwd import MODEL_BIN  # noqa: E402
 
 CORPUS = "certificates/corpora/tinystories-val.ids.json"
 
