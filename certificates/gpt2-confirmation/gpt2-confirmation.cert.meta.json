@@ -1,0 +1,33 @@
+{
+ "note": "confirmation set \u2014 no population claim (prestige/scaling evidence only)",
+ "model": "gpt2",
+ "prereg_ref": null,
+ "n": 8,
+ "indices": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7
+ ],
+ "k_phi1": 8,
+ "k_phi2_joint": 8,
+ "abstain_taxonomy": {},
+ "P_grid": [
+  320,
+  384
+ ],
+ "P_max": 448,
+ "context_length": 16,
+ "corpus_path": "certificates/corpora/wikitext103-test.ids.json",
+ "weights_path": "/Users/briannaughton/maths_problems/certified-inference/data/hf_cache/models--gpt2/snapshots/607a30d783dfa663caf39e06633721c8d4cfcd7e/pytorch_model.bin",
+ "cert_path": "certificates/gpt2-confirmation/gpt2-confirmation.cert.jsonl",
+ "single_cert_path": "certificates/gpt2-confirmation/gpt2-small-fullvocab.cert.json",
+ "jobs": 1,
+ "runtime_s": 4147.128111124039,
+ "canary": "asserted once per run (grid.py per-cell granularity) on window 0 at P=320 vs 2P=640",
+ "checker_status": "NOT independently re-derived by certificates/check.py \u2014 its weight preparation and wiring are TinyStories-shaped; a GPT-2 checker path is future work (see docs/PROVENANCE.md)."
+}

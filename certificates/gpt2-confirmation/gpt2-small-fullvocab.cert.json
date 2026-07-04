@@ -1,0 +1,166 @@
+{
+ "schema_version": "1.0",
+ "model": "gpt2",
+ "checkpoint_sha256": "7c5d3f4b8b76583b422fcb9189ad6c89d5d97a094541ce8932dce3ecabde1421",
+ "corpus_sha256": "ff5d4fe62f865b34aa2ce53a79a0123ecbfe90f37d1d27dcc10a1717a0c1d374",
+ "prompt_index": 0,
+ "context_length": 16,
+ "token_ids": [
+  5199,
+  347,
+  2852,
+  353,
+  318,
+  281,
+  3594,
+  2646,
+  837,
+  5581,
+  290,
+  21421,
+  8674,
+  764,
+  679,
+  550
+ ],
+ "precision_P": 320,
+ "P_max": 448,
+ "escalation_trace": [
+  320
+ ],
+ "status": "CERTIFIED",
+ "argmax_token": 257,
+ "margin_lo": [
+  "61399062918819486525657558147803068631762974562555343972877428907541948768536734685449067745563",
+  "533996758980227520598755426542388028650676130589163192486760401955554931445160137505740521734144"
+ ],
+ "abstain_reason": null,
+ "logit_width_max": [
+  "7951788663098673",
+  "151115727451828646838272"
+ ],
+ "top1_top2_float_gap": 0.11498024449123534,
+ "guard_audit": {
+  "guard_thresholds": {
+   "precision_bits": 320,
+   "exp_underflow_x": -223.19339215382934,
+   "tanh_saturation_x": 111.59669607691467
+  },
+  "per_layer": [
+   {
+    "layer": 0,
+    "softmax_shift_min_x": -17.22044095129864,
+    "softmax_shift_max_x": 0.0,
+    "gelu_inner_min_x": -28.026895729410672,
+    "gelu_inner_max_x": 56.924076947015045,
+    "exp_guard_hits": 0,
+    "tanh_guard_hits": 0
+   },
+   {
+    "layer": 1,
+    "softmax_shift_min_x": -8.710378409941816,
+    "softmax_shift_max_x": 0.0,
+    "gelu_inner_min_x": -110.60860054884817,
+    "gelu_inner_max_x": 132.93898611516335,
+    "exp_guard_hits": 0,
+    "tanh_guard_hits": 2
+   },
+   {
+    "layer": 2,
+    "softmax_shift_min_x": -13.75960947186024,
+    "softmax_shift_max_x": 0.0,
+    "gelu_inner_min_x": -654.0465228346676,
+    "gelu_inner_max_x": 8823.84658738459,
+    "exp_guard_hits": 0,
+    "tanh_guard_hits": 38
+   },
+   {
+    "layer": 3,
+    "softmax_shift_min_x": -13.875383246228155,
+    "softmax_shift_max_x": 0.0,
+    "gelu_inner_min_x": -55.781491759490315,
+    "gelu_inner_max_x": 52.00436294032412,
+    "exp_guard_hits": 0,
+    "tanh_guard_hits": 0
+   },
+   {
+    "layer": 4,
+    "softmax_shift_min_x": -47.895390139220254,
+    "softmax_shift_max_x": 0.0,
+    "gelu_inner_min_x": -12.339764705304903,
+    "gelu_inner_max_x": 15.935810344097277,
+    "exp_guard_hits": 0,
+    "tanh_guard_hits": 0
+   },
+   {
+    "layer": 5,
+    "softmax_shift_min_x": -24.6342970308308,
+    "softmax_shift_max_x": 0.0,
+    "gelu_inner_min_x": -23.27863437853192,
+    "gelu_inner_max_x": 3.4929923560034117,
+    "exp_guard_hits": 0,
+    "tanh_guard_hits": 0
+   },
+   {
+    "layer": 6,
+    "softmax_shift_min_x": -20.616326897568136,
+    "softmax_shift_max_x": 0.0,
+    "gelu_inner_min_x": -20.368186440024783,
+    "gelu_inner_max_x": 3.568812115711964,
+    "exp_guard_hits": 0,
+    "tanh_guard_hits": 0
+   },
+   {
+    "layer": 7,
+    "softmax_shift_min_x": -20.597270593502582,
+    "softmax_shift_max_x": 0.0,
+    "gelu_inner_min_x": -17.869629999206005,
+    "gelu_inner_max_x": 5.680134466830811,
+    "exp_guard_hits": 0,
+    "tanh_guard_hits": 0
+   },
+   {
+    "layer": 8,
+    "softmax_shift_min_x": -11.854312103095406,
+    "softmax_shift_max_x": 0.0,
+    "gelu_inner_min_x": -8.634308730648396,
+    "gelu_inner_max_x": 10.603668604279173,
+    "exp_guard_hits": 0,
+    "tanh_guard_hits": 0
+   },
+   {
+    "layer": 9,
+    "softmax_shift_min_x": -12.509918869239858,
+    "softmax_shift_max_x": 0.0,
+    "gelu_inner_min_x": -14.065691301658205,
+    "gelu_inner_max_x": 10.313965589586779,
+    "exp_guard_hits": 0,
+    "tanh_guard_hits": 0
+   },
+   {
+    "layer": 10,
+    "softmax_shift_min_x": -11.757378356836211,
+    "softmax_shift_max_x": 0.0,
+    "gelu_inner_min_x": -123.41448197049219,
+    "gelu_inner_max_x": 10.868823900366923,
+    "exp_guard_hits": 0,
+    "tanh_guard_hits": 2
+   },
+   {
+    "layer": 11,
+    "softmax_shift_min_x": -13.275672611854228,
+    "softmax_shift_max_x": 0.0,
+    "gelu_inner_min_x": -56.326407588975,
+    "gelu_inner_max_x": 37.501317086524416,
+    "exp_guard_hits": 0,
+    "tanh_guard_hits": 0
+   }
+  ]
+ },
+ "runtime_s": 878.1678059101105,
+ "peak_rss_mb": 1959.328125,
+ "phi1": true,
+ "phi2_joint": true,
+ "harness_transcript_sha256": "beb1614aecca5cefac9d0809ec25270251070e1c2695c63e80b535c13dd6559c",
+ "prereg_ref": null
+}

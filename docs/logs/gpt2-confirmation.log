@@ -1,0 +1,26 @@
+[gpt2-confirmation] widths canary: P=320 vs 2P=640 on window 0 (once per run — grid.py granularity) ...
+[self-test] exact conversion + dot enclosure: OK
+[self-test] exact conversion + dot enclosure: OK
+[gpt2-confirmation] widths canary PASSED (1647s)
+[gpt2-confirmation] n=8 ctx=16 P_grid=[320, 384] P_max=448 jobs=1 note='confirmation set — no population claim (prestige/scaling evidence only)'
+[gpt2-confirmation] weights=/Users/briannaughton/maths_problems/certified-inference/data/hf_cache/models--gpt2/snapshots/607a30d783dfa663caf39e06633721c8d4cfcd7e/pytorch_model.bin
+[gpt2-confirmation] corpus=certificates/corpora/wikitext103-test.ids.json
+[gpt2-confirmation] out=certificates/gpt2-confirmation/gpt2-confirmation.cert.jsonl
+[self-test] exact conversion + dot enclosure: OK
+  [ 1/8] idx=0 status=CERTIFIED k=1 k_joint=1 runtime_s=878.2 elapsed=880s eta=6159s
+[self-test] exact conversion + dot enclosure: OK
+  [ 2/8] idx=1 status=CERTIFIED k=2 k_joint=2 runtime_s=658.1 elapsed=1538s eta=4615s
+[self-test] exact conversion + dot enclosure: OK
+  [ 3/8] idx=2 status=CERTIFIED k=3 k_joint=3 runtime_s=433.5 elapsed=1972s eta=3287s
+[self-test] exact conversion + dot enclosure: OK
+  [ 4/8] idx=3 status=CERTIFIED k=4 k_joint=4 runtime_s=439.2 elapsed=2411s eta=2411s
+[self-test] exact conversion + dot enclosure: OK
+  [ 5/8] idx=4 status=CERTIFIED k=5 k_joint=5 runtime_s=435.7 elapsed=2847s eta=1708s
+[self-test] exact conversion + dot enclosure: OK
+  [ 6/8] idx=5 status=CERTIFIED k=6 k_joint=6 runtime_s=432.4 elapsed=3280s eta=1093s
+[self-test] exact conversion + dot enclosure: OK
+  [ 7/8] idx=6 status=CERTIFIED k=7 k_joint=7 runtime_s=432.2 elapsed=3713s eta=530s
+[self-test] exact conversion + dot enclosure: OK
+  [ 8/8] idx=7 status=CERTIFIED k=8 k_joint=8 runtime_s=434.1 elapsed=4147s eta=0s
+[gpt2-confirmation] DONE n=8 k(phi1)=8 k_joint=8 abstains={} runtime=4147s
+[gpt2-confirmation] wrote certificates/gpt2-confirmation/gpt2-confirmation.cert.jsonl + certificates/gpt2-confirmation/gpt2-confirmation.cert.meta.json + certificates/gpt2-confirmation/gpt2-small-fullvocab.cert.json

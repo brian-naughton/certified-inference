@@ -271,6 +271,24 @@ never a Hoeffding-bound population claim.
   **NOT yet independently re-derived by a second, torch-free instrument**.
   Closing that gap (a GPT-2 path in `check.py`) is future work, tracked
   alongside the trilogy's other open items.
-- **Results**: see `certificates/gpt2-confirmation/gpt2-confirmation.cert.meta.json`
-  once the run lands (runtime, k/8 certified, abstain taxonomy, margins) —
-  filled in on completion of the background run launched for this task.
+- **Results (run completed 2026-07-04, log
+  `docs/logs/gpt2-confirmation.log`)**: **8/8 CERTIFIED, 8/8 φ₂_joint**
+  (pinned float32 harness top-1 agreed with the certified exact-real top-1
+  on every sample), zero abstentions. Every sample certified at the FIRST
+  ladder rung P=320 (`escalation_trace=[320]` uniformly — neither 384 nor
+  the 448 cap was ever needed). Exact-Fraction `margin_lo` range
+  **0.001064 – 1.809204** (the 0.001064 sample, index 5, still clears its
+  max logit-interval width 2.37e-07 by ~12.1 bits); per-sample headroom
+  (`log2(margin_lo / logit_width_max)`) 12.1–27.6 bits. Runtime: widths
+  canary 1647 s (the 2P=640-bit forward dominates), then 8 samples in
+  4147 s (per-sample 432–878 s; first sample slower — cold torch load);
+  total wall ~5794 s ≈ 97 min, peak RSS ~2.4 GB, jobs=1. The single
+  prestige certificate `gpt2-small-fullvocab.cert.json` is byte-identical
+  to record 0 of the JSONL. Records spot-validated post-run:
+  schema-valid, `prompt_index` 0–7 with `token_ids` bit-identical to the
+  pinned corpus windows, checkpoint/corpus sha256 match the pins above,
+  `prereg_ref=null` throughout. Note the full-vocabulary competitor set is
+  not a per-record schema field: `require_full` enforcement is the tested
+  code path (`certinf/certify.py` GPT-2 dispatch + commit `548e42e`'s
+  raise-not-degrade guard + `tests/test_certify.py`), under which a
+  partial competitor set aborts rather than certifies.
