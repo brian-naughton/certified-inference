@@ -166,6 +166,16 @@ The pre-commitment is established externally — by the commit choreography and 
 public timestamps — not by anything `verify()` can check from the files alone (see
 `certinf/prereg.py`, WITNESS SEMANTICS). The choreography below is mandatory.
 
+*[2026-07-04 — protocol v2] A git commit timestamp is self-attested (written by the
+committer's own machine). Run 1 was pushed to GitHub in a single batch after its results
+existed, so no third-party clock separates its freeze from its results; its pre-commitment
+rests on commit-graph ordering + the nothing-up-my-sleeve seed convention + calibration
+making the outcome expected (see `docs/threat-model.md`). **From run R2 onward the
+protocol is `freeze → push → run → push results`:** the freeze commit is pushed publicly
+**before the run starts**, so GitHub's server-side receive timestamp gives third-party
+attestation that the parameters were bound before any certificate existed. The R2
+replication under v2 is recorded below.*
+
 ### Commit choreography
 
 **Commit 1 — the precommitment (no results).** In a single commit, with the parameters

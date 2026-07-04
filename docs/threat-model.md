@@ -52,11 +52,25 @@ mitigation stated honestly beside it.*
   the committed `prereg.json` and `sample-index.json` are the deterministic,
   arithmetically-consistent output of the committed seed against the committed corpus — it
   does **not** prove the seed was chosen before the results were seen. A `prereg.json` can
-  be regenerated after the fact and still verify `True`. Mitigation: pre-commitment is
-  established **externally**, by the freeze commit's own public timestamp (parameters bound,
-  no certificate results in that commit) and by publishing `prereg_sha256` as each
-  certificate's `prereg_ref` — the git/publication timestamps are the actual defence, not
-  the witness.
+  be regenerated after the fact and still verify `True`. Pre-commitment is therefore
+  established **externally**, by the freeze commit (parameters bound, no certificate results
+  in that commit) and by publishing `prereg_sha256` as each certificate's `prereg_ref`.
+  Honest limit of run 1's evidence: a git commit's own timestamp is **self-attested
+  metadata** — it is written by the committer's machine, not by a third party. Run 1 (the
+  original headline) was published to GitHub in a **single push after its results already
+  existed**, so no third-party timestamp separates its freeze commit from its result commit;
+  its pre-commitment rests on three softer supports instead — (1) the **commit-graph
+  ordering** (the freeze commit is a parent of the result commit, and contains no result
+  files), (2) the declared **nothing-up-my-sleeve seed convention** (seed = the project
+  date, `20260703`, not a value that could be shopped across many candidates for a
+  flattering draw), and (3) the fact that the **calibration table made the all-success
+  outcome expected in advance** (required-P p95 ≈ 160 at `P_max = 256`, zero abstentions),
+  so there was no selective-publication pressure to hide a bad run. These are real but they
+  are not third-party attestation. **Protocol upgrade (v2, from run R2 onward):** the freeze
+  commit is **pushed publicly before the run is started**, so GitHub's server-side receive
+  timestamp — a third party's clock, not the committer's — records the pre-commitment ahead
+  of any result existing. The replication run R2 (`certificates/prereg/headline-r2/`, seed
+  `20260704`, tag `prereg-r2`) is the first run frozen under v2; see `docs/claim-freeze.md`.
 
 - **Lean wrapper status.** Whether the statistical lower-bound theorem is kernel-checked in
   Lean is a timeboxed outcome, not a foregone one. Until the theorem lands and its numeric
