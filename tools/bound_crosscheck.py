@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Independent cross-check for `certinf/bound_report.py` (Task 2.5; Codex
-SHOULD #5, `docs/reviews/2026-07-03-codex-whole-corpus-evaluation.md`: "Cross-
+SHOULD #5, the pre-freeze external evaluation (internal): "Cross-
 check against a small independent script").
 
 `certinf.bound_report` computes the Hoeffding lower bound

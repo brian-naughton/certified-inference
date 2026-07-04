@@ -1,1 +1,6 @@
 VERIFIED (1000 records re-derived from hex weights, all records, headline)
+
+[2026-07-04: the hardened checker's full pass reproduced the following, matching README's quoted block]
+VERIFIED (1000 records re-derived from hex weights, all records, headline)
+population claim: p >= 0.9570 at confidence >= 1-1/40 (phi1)
+population claim: p >= 0.9570 at confidence >= 1-1/40 (phi2_joint; harness leg provenance-audited, not re-derived)

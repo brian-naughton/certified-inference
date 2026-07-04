@@ -11,7 +11,6 @@ def test_gelu_const_reflects_precision_without_manual_invalidation():
     c192 = E.gelu_const_ival()          # NO manual E._GELU_C = None here
     # both enclose sqrt(2/pi); the higher-precision one is strictly tighter
     assert (c192.hi_i - c192.lo_i) <= 4
-    assert float(c192.lo) / (1 << 192) if False else True
     w96 = Fraction(c96.hi_i - c96.lo_i, 1 << 96)
     w192 = Fraction(c192.hi_i - c192.lo_i, 1 << 192)
     assert w192 < w96

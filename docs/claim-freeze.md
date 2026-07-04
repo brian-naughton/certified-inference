@@ -6,11 +6,12 @@ status switch, fixes the language rules, and gives the commit choreography for t
 freeze. Its own commit timestamp — with the parameters bound but no results present —
 is part of the pre-commitment record (see [Freeze runbook](#freeze-runbook-m7)).*
 
-The wording here is adopted from the whole-corpus evaluation
-(`docs/reviews/2026-07-03-codex-whole-corpus-evaluation.md`, Q3) and the design-spec §8
-amendments (`docs/superpowers/specs/2026-07-03-certified-inference-design.md`). Nothing
+The wording here is adopted from the pre-freeze external evaluation (internal, Q3)
+and the design spec's §8 amendments (the project's internal design-spec record). Nothing
 in the headline may drift from the frozen text below without a fresh, timestamped edit
 to this file.
+
+*[2026-07-04: cosmetic reference rewording only — no parameter or claim text changed]*
 
 ---
 

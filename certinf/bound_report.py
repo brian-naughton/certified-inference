@@ -1,5 +1,5 @@
 """Hoeffding population lower-bound reporter (Task 2.5; Codex SHOULD #5,
-`docs/reviews/2026-07-03-codex-whole-corpus-evaluation.md`).
+the pre-freeze external evaluation (internal)).
 
 Given exact integers ``n``, ``k`` and an exact failure probability ``delta``,
 computes and renders the one-sided Hoeffding lower bound

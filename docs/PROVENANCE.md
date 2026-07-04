@@ -170,7 +170,7 @@ tokenizer's vocab/merge files.
     independently re-verified for this compliance conclusion; it is not
     relied on, since the CC BY-SA reading alone is sufficient regardless
     of which CC BY-SA version controls.) This is not an A4 HARD-gate stop
-    condition; Brian was not escalated to.
+    condition; the owner decision gate was not triggered.
 - **Committed**: `certificates/corpora/wikitext103-test.ids.json` — GPT-2
   byte-level-BPE token-id windows only.
 - **Why compliant**: same reasoning as TinyStories — the committed
