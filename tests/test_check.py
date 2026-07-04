@@ -11,10 +11,11 @@ import json
 import os
 import subprocess
 import sys
+from fractions import Fraction
 
 import pytest
 
-from certinf import corpus, prereg
+from certinf import corpus, prereg, schema
 
 _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _CHECK = os.path.join(_REPO, "certificates", "check.py")
@@ -118,6 +119,47 @@ def test_token_ids_tamper_fails(tmp_path):
     assert "FAILED" in out and "token_ids" in out
 
 
+def test_phi1_forged_false_on_certified_record_fails_schema_validation(tmp_path):
+    """A record whose (re-derivable) status is CERTIFIED but whose phi1 is
+    forged to False is malformed — schema.validate_record's cross-field
+    invariant (phi1 == (status == "CERTIFIED")) rejects it before any
+    re-derivation runs, independent of the phi1-blind population-claim
+    counting (I1)."""
+    rec = _real_records(1)[0]
+    assert rec["status"] == "CERTIFIED"
+    rec["phi1"] = False
+    cert = tmp_path / "phi1_forged_false.jsonl"
+    _write_cert(cert, [rec])
+    rc, out = _run(corpus=_CORPUS, cert=str(cert))
+    assert rc == 1, out
+    assert "FAILED" in out and "phi1" in out
+
+
+def test_phi1_forged_true_on_abstain_record_fails_schema_validation(tmp_path):
+    """The symmetric forgery: an ABSTAIN record with phi1 forged to True is
+    equally malformed and equally rejected (I1). Built synthetically (none
+    of the committed calibration fixtures happen to abstain) — this only
+    needs to be schema-shaped, since schema validation runs before any
+    weight/corpus re-derivation, so a bogus checkpoint/corpus sha does not
+    stop it from reaching (and failing) that check first."""
+    rec = schema.build_record(
+        model="tinystories", checkpoint_sha256="a" * 64, corpus_sha256="b" * 64,
+        prompt_index=0, context_length=8, token_ids=[1, 2, 3],
+        precision_P=256, P_max=256, escalation_trace=[256],
+        status="ABSTAIN", argmax_token=None, margin_lo=None,
+        abstain_reason="width", logit_width_max=Fraction(1, 10),
+        top1_top2_float_gap=1e-6, guard_audit={}, runtime_s=1.0,
+        peak_rss_mb=1.0, phi1=False, phi2_joint=None,
+        harness_transcript_sha256=None, prereg_ref=None,
+    )
+    rec["phi1"] = True                      # forge
+    cert = tmp_path / "phi1_forged_true.jsonl"
+    _write_cert(cert, [rec])
+    rc, out = _run(corpus=_CORPUS, cert=str(cert))
+    assert rc == 1, out
+    assert "FAILED" in out and "phi1" in out
+
+
 def test_checkpoint_sha_mismatch_fails(tmp_path):
     """A record claiming a different checkpoint than the weights export fails."""
     rec = _real_records(1)[0]
@@ -202,7 +244,9 @@ def test_verified_headline_complete_prints_population_claim_lines(tmp_path):
     assert rc == 0, out
     assert out.count("population claim: p >=") == 2
     assert "(phi1)" in out
-    assert "(phi2_joint)" in out
+    # phi2_joint cannot be re-derived torch-free (harness-leg claim), so its
+    # line must carry the trust caveat inline; phi1's line stays clean (I2).
+    assert "(phi2_joint; harness leg provenance-audited, not re-derived)" in out
     # the printed line comes strictly after the VERIFIED line (checker's word
     # is the last word)
     assert out.index("VERIFIED") < out.index("population claim")

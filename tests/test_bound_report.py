@@ -34,6 +34,26 @@ def test_fallback_n_case_reproduces_claim_freeze_0_9504():
     assert report.lower_bound_display == "0.9504"
 
 
+def test_round_down_boundary_n500_demonstrates_safe_direction():
+    """n=500, k=500, delta=1/40: the round-down boundary demonstration (M1),
+    made an executable assertion rather than prose-only. The raw value is
+    0.939263... — a hair below the 0.9393 round-to-nearest boundary — so
+    ordinary rounding would display "0.9393" (docs/claim-freeze.md's pre-run
+    approximation for this reference-only row), while bound_report's
+    deliberate round-DOWN yields "0.9392", never overstating the rate."""
+    report = hoeffding_lower_bound(500, 500, "1/40")
+    assert report.lower_bound_display == "0.9392"
+
+
+def test_round_down_boundary_n1000_demonstrates_safe_direction():
+    """n=1000, k=1000, delta=1/40 (the published headline figure): the raw
+    value is 0.957053... which naive round-half-up would display as
+    "0.9571", but bound_report's deliberate round-DOWN yields the actually
+    quoted "0.9570"."""
+    report = hoeffding_lower_bound(1000, 1000, "1/40")
+    assert report.lower_bound_display == "0.9570"
+
+
 def test_lower_bound_is_a_true_lower_bound_vs_high_precision_float():
     """The displayed bound never overstates a high-precision independent
     float computation of the same formula."""

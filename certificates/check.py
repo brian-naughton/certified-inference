@@ -47,10 +47,25 @@ honest "sampled" VERIFIED line and asserts no completeness.
 Population claim (Task 2.5). Immediately after a full (non-sampled) headline
 VERIFIED pass, the checker itself prints the Hoeffding population-claim line
 for each pre-registered property (phi1, phi2_joint) via
-`certinf.bound_report`: it counts successes over the FULL, just-re-derived
-record set and applies each property's frozen `delta_split` share — so the
-checker's own re-derivation, not the certificate generator, is the last word
-on the number a reader would quote. A `--sample` run never prints this line.
+`certinf.bound_report`, applying each property's frozen `delta_split` share.
+A `--sample` run never prints this line. The two properties are counted on
+different footing, and the printed phi2_joint line says so:
+
+  - phi1's count (`k_phi1`) is derived from `status` as RE-VERIFIED by
+    `_check_one` (every record here re-derived consistently, since `rc == 0`
+    is a precondition) — never from the record's self-declared `phi1` field,
+    which this checker does not otherwise touch. Its printed line is clean.
+  - phi2_joint's count is read from the record's `phi2_joint` field as
+    committed: it is a harness-leg claim (the transcript sha is
+    provenance-audited, see `certinf.harness`) that this torch-free checker
+    cannot re-derive. Its printed line therefore carries that caveat inline.
+
+Schema validation (Task 2.5 review, I1). Every record is also passed to
+`certinf.schema.validate_record` before any re-derivation runs. This is cheap
+and enforces the schema's own cross-field invariants — most relevantly here,
+`phi1 == (status == "CERTIFIED")` — so a record that forges `phi1` against
+its own (re-derivable) `status` is rejected as malformed before it can reach
+the population-claim step, independent of that step's phi1-blind counting.
 
 Torch-free note (adaptation, 2026-07-03): the interval ENGINE
 (`certinf.interval_fwd`) imports torch at module scope and prepares weights
@@ -81,6 +96,7 @@ from certinf import corpus as corpus_mod                       # noqa: E402
 from certinf import exact                                      # noqa: E402  (stdlib)
 from certinf import ival_ext as E                              # noqa: E402  (stdlib)
 from certinf import prereg as prereg_mod                       # noqa: E402  (public iface only)
+from certinf import schema as schema_mod                       # noqa: E402  (Task 2.5 review, I1)
 from certinf.exact import Ival                                 # noqa: E402
 
 LN_EPS = Fraction(1e-5)          # exact dyadic of the double, matching interval_fwd
@@ -382,13 +398,19 @@ def _print_population_claims(recs: list[dict], prereg_dict: dict) -> None:
     """Print the Hoeffding population-claim line per pre-registered property
     (Task 2.5).
 
-    Runs only after a full (non-sampled) headline VERIFIED pass, so the
-    checker's own re-derivation — not the certificate generator — is the last
-    word on the number a reader would quote: for each property in the
-    frozen `delta_split` (phi1, phi2_joint) it counts successes over the
-    FULL, A6-complete record set the checker just re-derived and reports
-    `certinf.bound_report`'s Hoeffding lower bound at that property's
-    pre-registered delta share.
+    Runs only after a full (non-sampled) headline VERIFIED pass, so for
+    `phi1` the checker's own re-derivation — not the certificate generator —
+    is the last word on the number a reader would quote: `k_phi1` is counted
+    from `status` as RE-VERIFIED by `_check_one` for every record in this
+    pass, never from the record's self-declared `phi1` field (I1). Every
+    record has already passed `certinf.schema.validate_record` by the time
+    this runs, so `phi1 == (status == "CERTIFIED")` is additionally enforced
+    structurally — but the count here does not rely on that; it is
+    phi1-blind by construction.
+
+    `phi2_joint` cannot be re-derived torch-free (it is the harness-leg
+    agreement claim), so its count is read from the committed field and its
+    printed line carries an explicit trust caveat (I2).
     """
     n = prereg_dict["n"]
     for prop in ("phi1", "phi2_joint"):
@@ -396,9 +418,14 @@ def _print_population_claims(recs: list[dict], prereg_dict: dict) -> None:
         if pair is None:
             continue
         delta = Fraction(int(pair[0]), int(pair[1]))
-        k = sum(1 for r in recs if r.get(prop) is True)
+        if prop == "phi1":
+            k = sum(1 for r in recs if r["status"] == "CERTIFIED")
+            label = "phi1"
+        else:
+            k = sum(1 for r in recs if r.get(prop) is True)
+            label = "phi2_joint; harness leg provenance-audited, not re-derived"
         report = bound_report.hoeffding_lower_bound(n=n, k=k, delta=delta)
-        print(report.line(property_name=prop))
+        print(report.line(property_name=label))
 
 
 def main() -> int:
@@ -416,6 +443,17 @@ def main() -> int:
     recs = _load_cert(args.cert)
     if not recs:
         return _fail(f"certificate {args.cert!r} has no records")
+
+    # --- schema validation (I1): catches phi1/status cross-field forgeries
+    #     and any other structural tampering, cheap and up front — enforces
+    #     the invariants (e.g. phi1 == (status == "CERTIFIED")) the
+    #     population-claim step's counting relies on being true of a
+    #     well-formed record.
+    for rec in recs:
+        try:
+            schema_mod.validate_record({k: v for k, v in rec.items() if k != "__line__"})
+        except ValueError as e:
+            return _fail(f"record fails schema validation (line {rec['__line__']}): {e}")
 
     # --- weights export integrity: its self-declared checkpoint sha must agree
     #     with every record (the re-derivation itself catches any weight tamper).

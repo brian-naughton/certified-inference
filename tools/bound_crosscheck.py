@@ -25,9 +25,25 @@ rounds the final lower bound DOWN (never overstate a published rate), and
 0.93926... sits just below the 0.9393 rounding boundary, so its safe-direction
 display is 0.9392, one part in the last displayed digit below the freeze
 doc's pre-run approximation. That is expected and is not an arithmetic
-disagreement — this script checks numeric agreement on the raw (unrounded)
-value, and only checks the *displayed* string where both rounding
-conventions agree (n=1000, n=750).
+disagreement between this script and `bound_report` — it is just a different
+document's pre-run estimate using a different rounding convention.
+
+Why n=500 is asserted here anyway (M2). `_RAW_TOLERANCE = 1e-9` compares the
+two arithmetic routes' RAW (unrounded, ~30-decimal-place internal) values, so
+it is the right tool for catching a wrong formula, a sign error, a missing
+factor of 2, or a swapped k/n. It CANNOT catch a rounding-DIRECTION bug (e.g.
+`ROUND_HALF_UP` regressing in for `ROUND_FLOOR`, or a stray call to Python's
+banker's-rounding `round()`): such a bug only perturbs the last displayed
+digit — a difference on the order of `10**-display_dp` — which is many orders
+of magnitude below `_RAW_TOLERANCE` and would sail through the raw-value
+comparison undetected. The DISPLAY-STRING equality assertions in `CASES` are
+the guard for that class of bug, and n=500 is the adversarial case: its raw
+value sits close enough to the 0.9393 boundary that a round-half-up (or
+round-to-nearest) regression would print "0.9393" while the raw-value diff
+against the double-precision route would still be comfortably inside
+`_RAW_TOLERANCE`. n=1000 and n=750 do not sit near a rounding boundary, so
+they cannot catch this class of regression on their own — n=500's display
+assertion is load-bearing precisely because it is boundary-adjacent.
 
 Run standalone: `python3.11 tools/bound_crosscheck.py`
 """
@@ -50,14 +66,22 @@ from certinf.bound_report import hoeffding_lower_bound  # noqa: E402  (value und
 # error, a missing factor of 2, or a swapped k/n.
 _RAW_TOLERANCE = 1e-9
 
-# (n, k, delta, expected DISPLAY string -- None where the doc's pre-run
-# reference figure uses a different (round-to-nearest) rounding convention
-# than bound_report's deliberate round-down; see module docstring).
+# (n, k, delta, expected DISPLAY string). `expected_display` may be `None` to
+# skip the display-string assertion for a case (raw-value agreement only);
+# every case below has one, since the display-string check is the guard
+# against rounding-DIRECTION bugs the raw tolerance cannot see (see module
+# docstring, M2).
 CASES = [
     (1000, 1000, "1/40", "0.9570"),   # headline (docs/claim-freeze.md RESULTS)
     (750, 750, "1/40", "0.9504"),     # fallback n (docs/claim-freeze.md)
-    (500, 500, "1/40", None),         # reference only; doc's approx is 0.9393
-                                       # (round-to-nearest); round-down is 0.9392
+    (500, 500, "1/40", "0.9392"),     # adversarial rounding-boundary case: raw
+                                       # 0.939263... sits just below the 0.9393
+                                       # round-to-nearest boundary (docs/claim-
+                                       # freeze.md's pre-run reference-only
+                                       # approx for this row) -- this is the
+                                       # case that would catch a rounding-
+                                       # DIRECTION regression that the 1e-9
+                                       # raw-value tolerance alone cannot.
     (20, 20, "1/20", "0.7263"),       # small-n sanity case (Phase 1 pilot scale)
 ]
 
