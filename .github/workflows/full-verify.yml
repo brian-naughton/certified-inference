@@ -1,0 +1,37 @@
+name: full-verify
+
+# Manually triggered lane: the COMPLETE headline verification, re-derived
+# torch-free from the committed hex weights. This is not part of the push/PR
+# gate (verify.yml already runs a fast sampled re-derivation) — it exists so
+# any outsider can trigger a full 1000-record re-derivation and watch the
+# public log, without needing local Python or the ~26 min runtime on their
+# own machine.
+on:
+  workflow_dispatch:
+
+jobs:
+  full-headline-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install pytest
+      - name: Full headline re-derivation (1000/1000 records, torch-free)
+        run: |
+          python3.11 certificates/check.py \
+            --weights certificates/tinystories-1M.weights.json \
+            --corpus certificates/corpora/tinystories-val.ids.json \
+            --cert certificates/headline/tinystories-headline.cert.jsonl \
+            --prereg certificates/prereg/headline --jobs 4 \
+            2>&1 | tee full-verify.log
+          test "${PIPESTATUS[0]}" -eq 0
+      - name: Upload full verification log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-verify-log
+          path: full-verify.log

@@ -22,6 +22,16 @@ We do three things and keep each one carefully bounded:
 
 The model is small and the corpus is narrow by design — the contribution is the **discipline and checkability** of the claim (pre-registered, exact-real, torch-free re-derived, kernel-checked wrapper), not scale. This closes the "Early signals" preview at the end of [certified-grokking](https://github.com/brian-naughton/certified-grokking): the preliminary TinyStories-1M and GPT-2-small experiments teased there are now a pre-registered, independently checkable result.
 
+### The claims at a glance
+
+A reviewer asked for the claims in one table — here it is:
+
+| Claim | Scope | Not claimed |
+|---|---|---|
+| 1000/1000 pre-registered TinyStories-1M ctx-16 prompts certified | Pinned finite corpus C; exact-real semantics; full-vocabulary argmax; P ≤ 256 | Not deployment behaviour; not TinyStories generally; not all prompts |
+| ≥ 95.70% of C certifiable at 97.5% confidence | With-replacement draws from C; Hoeffding inequality kernel-checked in Lean | Sampling bridge not formalised in Lean (audited provenance) |
+| GPT-2-small: 8/8 full-vocabulary certificates at P = 320 | Prestige/scaling confirmation | No population claim; torch-free checker path for GPT-2 not yet built |
+
 ## Status at a glance
 
 Four properties, each naming exactly what it claims, what is trusted to establish it, and the artifact that carries it. Nothing here is "certified end-to-end" — the wrapper is a **kernel-checked statistical wrapper over audited certificate records**, and the trust strata are enumerated in [Trust boundary](#trust-boundary) below.
