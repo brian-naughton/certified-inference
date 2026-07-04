@@ -38,7 +38,7 @@ Per-family points used in the fit:
 
 > This is the first measured precision-depth curve for these models on this engine version — family-dependent slope, point inputs only; NOT a universal law.
 
-## Decision point (Task 1.4 Step 4)
+## Calibration interpretation
 
 - **No §6 pivot triggered by this grid.** p99 tracks p95 at every context
   length (a single ctx-16 sample of 300 required 192 bits; every other sample

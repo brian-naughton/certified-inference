@@ -1,8 +1,6 @@
 # Provenance
 
-Internal build record for this session's Task 1 (Phase 1) work. This file
-tracks checkpoint/corpus hashes, environment pins, and pilot-run evidence —
-not itself a public claim document.
+This document records checkpoint and corpus hashes, environment pins, artifact policy, and run provenance for the certificates in this repository. It supports the public claims but is not itself an additional claim surface.
 
 ## Checkpoints (sha256 of `pytorch_model.bin`)
 
