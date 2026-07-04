@@ -1,5 +1,11 @@
+import pytest
+
+
 def test_package_imports():
-    from certinf import exact, ival_ext, float_fwd, interval_fwd  # noqa: F401
+    from certinf import exact, ival_ext  # noqa: F401
+
+    pytest.importorskip("torch")
+    from certinf import float_fwd, interval_fwd  # noqa: F401
     from certinf import gpt2_float, gpt2_interval  # noqa: F401
 
 

@@ -1,6 +1,8 @@
 import pytest
 
-from certinf import canary
+torch = pytest.importorskip("torch")  # noqa: F841 -- canary._run loads via the torch loader
+
+from certinf import canary  # noqa: E402
 
 
 @pytest.mark.canary
