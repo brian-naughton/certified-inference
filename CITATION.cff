@@ -1,0 +1,51 @@
+cff-version: 1.2.0
+title: "Certified Inference: A Pre-Registered, Exact-Real, Kernel-Checked Next-Token Certificate for a Pretrained LayerNorm Language Model"
+message: "If you use this work, please cite it."
+authors:
+  - family-names: Naughton
+    given-names: Brian
+date-released: 2026-07-04
+license: MIT
+abstract: >
+  A pre-registered, independently verifiable statistical certificate for the
+  exact-real next-token argmax of a real pretrained LayerNorm language model.
+  For the exact-real function defined by the published TinyStories-1M float32
+  checkpoint, an outward-rounded interval certificate establishes a unique
+  full-vocabulary (50,257-token) next-token argmax at precision P <= 256 on
+  every prompt of a pre-registered, with-replacement, seed-committed sample of
+  n = 1000 windows drawn from a pinned finite token-id corpus C at context
+  length 16 — all 1000 re-derived bit-identically by an independent Torch-free
+  checker that asserts full-corpus completeness. By a one-sided Hoeffding bound,
+  with confidence at least 97.5%, at least 95.70% of C is certifiable under the
+  stated engine and escalation policy; in the same frozen run the pinned float32
+  harness agreed with the certified exact-real argmax on all 1000 samples,
+  yielding a separate lower bound on the joint event. The Hoeffding
+  lower-confidence theorem is kernel-checked in Lean 4 with Mathlib (axioms
+  propext, Classical.choice, Quot.sound); the finite-corpus sampling bridge and
+  the harness conformance leg are audited provenance, not formalised. A
+  full-vocabulary GPT-2-small certificate set is reported as prestige
+  confirmation carrying no population claim.
+keywords:
+  - formal verification
+  - interval arithmetic
+  - language models
+  - exact-real arithmetic
+  - pre-registration
+  - Hoeffding bound
+  - Lean
+  - AI safety
+references:
+  - type: software
+    title: "Certified Grokking: A Machine-Checked Certificate for the Nanda et al. Modular-Addition Transformer"
+    authors:
+      - family-names: Naughton
+        given-names: Brian
+    year: 2026
+    notes: "Sister project: https://github.com/brian-naughton/certified-grokking"
+  - type: software
+    title: "Verified Circuits: Kernel-Checked Spec == Circuit == Model for a Learned Transformer"
+    authors:
+      - family-names: Naughton
+        given-names: Brian
+    year: 2026
+    notes: "Sister project: https://github.com/brian-naughton/verified-circuits"
