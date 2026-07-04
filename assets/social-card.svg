@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <!-- certified-inference social card — house aesthetic (matches certified-grokking/verified-circuits).
+       Render: rsvg-convert -w 1280 -h 640 social-card.svg -o social-card.png -->
+  <rect width="1280" height="640" fill="#0d1117"/>
+
+  <!-- header: repo name + subtitle (left), URL (right) -->
+  <text x="70" y="75" font-family="Menlo, 'SF Mono', monospace" font-size="30" font-weight="bold" fill="#c9d1d9">certified-inference</text>
+  <text x="70" y="115" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="26" fill="#8b949e">a pretrained language model, certified</text>
+  <text x="1210" y="75" text-anchor="end" font-family="Menlo, 'SF Mono', monospace" font-size="22" fill="#8b949e">github.com/brian-naughton/certified-inference</text>
+
+  <!-- headline -->
+  <text x="70" y="285" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="96" font-weight="bold" fill="#f0f6fc">inference, <tspan fill="#3fb950">certified</tspan></text>
+
+  <!-- sublines -->
+  <text x="70" y="352" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="29" fill="#c9d1d9">1000/1000 pre-registered prompts — a unique full-vocabulary exact-real next-token argmax</text>
+  <text x="70" y="398" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="29" font-weight="bold" fill="#3fb950">≥ 95.70% of the pinned corpus C certifiable, at 97.5% confidence</text>
+  <text x="70" y="444" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" fill="#8b949e">pre-registered · kernel-checked · re-check it yourself</text>
+
+  <!-- chips -->
+  <g font-family="Menlo, 'SF Mono', monospace" font-size="19" fill="#c9d1d9">
+    <rect x="70" y="522" width="300" height="56" rx="12" fill="none" stroke="#30363d" stroke-width="2"/>
+    <text x="220" y="556" text-anchor="middle">1000/1000 pre-registered</text>
+    <rect x="400" y="522" width="270" height="56" rx="12" fill="none" stroke="#30363d" stroke-width="2"/>
+    <text x="535" y="556" text-anchor="middle">p ≥ 0.9570 @ 97.5%</text>
+    <rect x="700" y="522" width="300" height="56" rx="12" fill="none" stroke="#30363d" stroke-width="2"/>
+    <text x="850" y="556" text-anchor="middle">Lean-checked Hoeffding</text>
+  </g>
+</svg>
