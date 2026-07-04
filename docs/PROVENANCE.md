@@ -227,3 +227,50 @@ headline runs.
 
 ## Sampling bridge — AUDITED, not kernel-checked (Hoeffding wrapper hypotheses)
 The Lean theorem `hoeffding_lower_confidence` assumes: (1) mutual independence (`iIndepFun`) — discharged because the frozen design draws indices i.i.d. uniformly WITH REPLACEMENT from the pinned corpus C (without replacement would be hypergeometric-dependent and break this hypothesis; the freeze forbids deduplication); (2) common mean μ[Bᵢ] = p — discharged because each Bᵢ is a deterministic {0,1} predicate of the drawn index, so its expectation under a uniform draw equals the population φ-rate on C, identical for every draw; (3) values in [0,1] and measurability — trivial for indicator functions on a finite space. These discharges are audited provenance (this document + the committed prereg artifacts + the seeded re-draw witness), not formalised in Lean; the kernel-checked object is the statistical inequality itself.
+
+## GPT-2 confirmation set (Task 2.3)
+
+**Role: prestige confirmation, NOT a population claim.** Per the
+2026-07-03 whole-corpus evaluation (Q3 + SHOULD #4): "Give GPT-2 a cleaner
+role: one or a few full-vocab per-sample certificates plus an honest note
+that the checker path is not yet GPT-2-complete. Do not let GPT-2 drive the
+statistical headline." This supersedes the earlier task brief's `n≈30`
+figure; `n=8` full-vocabulary certificates were generated instead — still
+hours of compute, but explicitly scoped as confirmation/scaling evidence,
+never a Hoeffding-bound population claim.
+
+- **What was certified**: `certinf.certify.certify_sample("gpt2", ...)` —
+  the SAME hardened full-vocabulary dispatch path validated by
+  `tests/test_certify.py` (commit `548e42e`'s `require_full=True` guard:
+  the certified competitor set is forced to the full 50,257-token
+  vocabulary and the call raises rather than silently downgrading to
+  top-200) — over the first `n=8` windows (`prompt_index=0..7`, a
+  deterministic, non-cherry-picked prefix slice, never a random draw) of the
+  pinned WikiText-103-test corpus (`certificates/corpora/wikitext103-test.ids.json`,
+  `corpus_sha256=ff5d4fe62f865b34aa2ce53a79a0123ecbfe90f37d1d27dcc10a1717a0c1d374`)
+  at context length 16. Escalation ladder `P_grid=[320,384]`, `P_max=448`.
+  The widths canary was asserted ONCE PER RUN (window 0, P=320 vs 2P=640 —
+  `certinf/grid.py`'s documented per-cell granularity; a per-sample canary
+  would add two extra GPT-2 forwards, one at 640 bits, to every ~5-minute
+  sample and several-fold multiply the run's cost).
+- **Every record carries `prereg_ref=None`.** There is no per-record
+  "label" field in the certificate schema (`schema.validate_record` rejects
+  unrecognised top-level keys), so the "confirmation set — no population
+  claim" designation is carried in the run's own
+  `certificates/gpt2-confirmation/gpt2-confirmation.cert.meta.json` (`note`
+  field) and here, not inside each JSON record.
+- **Checker status (honest, not glossed over)**: `certificates/check.py`
+  independently re-derives records torch-free from the sha-pinned hex weight
+  export, but its weight preparation and residual-stream wiring are
+  TinyStories-shaped; it does not yet have a GPT-2 code path (the GPT-2 hex
+  export itself, `certificates/gpt2-small.weights.json`, is ~2.1 GB and
+  gitignored — see the Task 0.4 section above). These GPT-2 records are
+  therefore full-vocabulary exact-real certificates produced by the SAME
+  generator instrument (`certinf.exact` / `certinf.ival_ext` / the widths
+  canary) validated extensively elsewhere in this project, but they are
+  **NOT yet independently re-derived by a second, torch-free instrument**.
+  Closing that gap (a GPT-2 path in `check.py`) is future work, tracked
+  alongside the trilogy's other open items.
+- **Results**: see `certificates/gpt2-confirmation/gpt2-confirmation.cert.meta.json`
+  once the run lands (runtime, k/8 certified, abstain taxonomy, margins) —
+  filled in on completion of the background run launched for this task.
