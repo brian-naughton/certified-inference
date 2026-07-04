@@ -286,3 +286,16 @@ certificate exists.** No `certificates/headline-r2/` results are present in this
 this file. Only after the freeze is pushed does the R2 run begin — its records land in a
 later commit, after the independent `--prereg` checker passes, with no population claim
 before that checker is green.
+
+
+### R2 RESULTS — bound post-run, post-checker (2026-07-04)
+
+Run completed n=1000 in 8,111 s (docs/logs/headline_r2_run.log): k = 1000/1000 (φ₁),
+k₂ = 1000/1000 (φ₂_joint), zero abstentions, max P used within the frozen ladder.
+Independent torch-free checker over the full R2 artifact (docs/logs/headline_r2_check.log):
+VERIFIED (1000 records re-derived from hex weights, all records, headline), announcing
+`p >= 0.9570 at confidence >= 1-1/40` for φ₁ and for φ₂_joint (harness leg
+provenance-audited, not re-derived). Identical bound to run 1. The R2 freeze
+(prereg_sha256 c42281fd7a091b67deae15e1bd19dea58146f2e2b76422ecfa75ccf215134be9, seed
+20260704) was publicly pushed at 2026-07-04T08:22:26Z, before any R2 certificate existed
+— pre-commitment for R2 is third-party attested (protocol v2).

@@ -1,0 +1,20 @@
+{
+ "model": "tinystories",
+ "prereg_ref": "c42281fd7a091b67deae15e1bd19dea58146f2e2b76422ecfa75ccf215134be9",
+ "n": 1000,
+ "k_phi1": 1000,
+ "k_phi2_joint": 1000,
+ "abstain_taxonomy": {},
+ "P_grid": [
+  128,
+  160,
+  192
+ ],
+ "P_max": 256,
+ "context_length": 16,
+ "corpus_path": "certificates/corpora/tinystories-val.ids.json",
+ "weights_path": "/Users/briannaughton/maths_problems/certified-inference/data/hf_cache/models--roneneldan--TinyStories-1M/snapshots/77f1b168e219585646439073245fe87e56b3023e/pytorch_model.bin",
+ "cert_path": "certificates/headline-r2/tinystories-headline.cert.jsonl",
+ "jobs": 6,
+ "runtime_s": 8111.071113824844
+}

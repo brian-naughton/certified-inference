@@ -81,6 +81,21 @@ The whole point of a statistical headline is that the sample was fixed **before*
 
 The pre-registration *witness* proves determinism, not pre-commitment — a `prereg.json` can be regenerated after the fact and still verify. The actual defence is the commit's own public timestamp with no results in it. We say so plainly in the [threat model](docs/threat-model.md). The end-to-end machinery — including the failure paths that must *reject* a dropped, extra, or mixed-provenance record — is exercised in [`docs/prereg-dryrun.md`](docs/prereg-dryrun.md).
 
+### Replicated under public pre-commitment (R2)
+
+An external review made a fair point: run 1's freeze-before-results ordering rests on
+self-attested git timestamps, because the whole repository was pushed in one batch after
+the results existed (see the threat model's pre-registration entry). So we upgraded the
+protocol and replicated. On 2026-07-04 a second freeze — seed 20260704, same corpus,
+same n = 1000, same frozen claim text — was **pushed to this public repository before any
+R2 certificate existed** (tag `prereg-r2`; GitHub's server-side push timestamp
+2026-07-04T08:22:26Z; an OpenTimestamps receipt for the freeze commit is committed
+alongside it). The run then executed and the torch-free checker re-derived all 1000
+records against that freeze: **1000/1000 certified, 1000/1000 harness-agreed, zero
+abstentions — the identical bound, `p >= 0.9570` at `>= 97.5%` confidence per property.**
+Records and logs live under `certificates/headline-r2/` and `certificates/prereg/headline-r2/`;
+the freeze-to-results ordering for R2 is third-party attested, not self-attested.
+
 ### The Lean theorem, kernel-checked
 
 The statistical wrapper is not a hand-wave. `proofs/HoeffdingWrapper/` proves, in Lean 4 + Mathlib:
