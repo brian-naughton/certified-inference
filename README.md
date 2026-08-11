@@ -32,6 +32,16 @@ A reviewer asked for the claims in one table — here it is:
 | ≥ 95.70% of C certifiable at 97.5% confidence | With-replacement draws from C; Hoeffding inequality kernel-checked in Lean | Sampling bridge not formalised in Lean (audited provenance) |
 | GPT-2-small: 8/8 full-vocabulary certificates at P = 320 | Prestige/scaling confirmation | No population claim; torch-free checker path for GPT-2 not yet built |
 
+## The trilogy
+
+This repository is the third of three, built in sequence, each answering an objection to the one before it. Together they push a single question: how far can a machine-checkable guarantee about a neural network be taken?
+
+1. **[verified-circuits](https://github.com/brian-naughton/verified-circuits)** — `Spec == Circuit == Model` for a tiny transformer trained from scratch on a complete finite task: a length-generic Lean theorem for the circuit↔spec half, and a rigorous interval certificate over the whole 65,536-input domain. The cleanest end-to-end chain, on a model of our own.
+2. **[certified-grokking](https://github.com/brian-naughton/certified-grokking)** — the same discipline applied to a model we did **not** train: the canonical Nanda et al. modular-addition "grokking" checkpoint, certified over all 12,769 inputs, with the ideal clock decoder proved in Lean and the certified finding that the celebrated clock circuit is *decision-complete but not margin-dominant*.
+3. **certified-inference** — *you are here.* A real pretrained LayerNorm language model, too large to enumerate: pre-registered, exact-real, full-vocabulary next-token certificates over a pinned corpus, wrapped in a Hoeffding lower bound whose statistical theorem is kernel-checked in Lean.
+
+The arc: a guarantee we can close end-to-end → the same guarantee on someone else's celebrated model, including the point where its story runs out → the guarantee at a scale where exhaustive checking is impossible and the honest claim becomes statistical. This repository does **not** have the same formal closure as the first two, and we do not pretend it does.
+
 ## Status at a glance
 
 Four properties, each naming exactly what it claims, what is trusted to establish it, and the artifact that carries it. Nothing here is "certified end-to-end" — the wrapper is a **kernel-checked statistical wrapper over audited certificate records**, and the trust strata are enumerated in [Trust boundary](#trust-boundary) below.
@@ -205,7 +215,7 @@ We are late to a strong and growing field, and everything here is downstream of 
 - **TorchLean** ([arXiv:2602.22631](https://arxiv.org/abs/2602.22631)) — bridges PyTorch and Lean toward a genuine operational semantics for neural-network execution; this is the gold-standard direction for closing the exact-real/binary32 gap our φ₂_joint leg only measures empirically.
 - **"No Soundness in the Real World"** (ICML 2025, [arXiv:2506.01054](https://arxiv.org/abs/2506.01054)) — shows float-executed verifiers are unsound in practice. That result is precisely why our arithmetic is fixed-point/rational with outward rounding throughout, and why the checker is torch-free.
 
-**Sister projects (the trilogy):** [verified-circuits](https://github.com/brian-naughton/verified-circuits) — end-to-end formal cleanliness on a self-trained model with a length-generic Lean theorem; [certified-grokking](https://github.com/brian-naughton/certified-grokking) — full-finite-domain certification of a public canonical checkpoint plus a mechanistic-interpretability finding. This repo is the distributional step: exact-real certification for a real pretrained LayerNorm LM, one sample at a time, wrapped in a pre-registered statistical claim. It does not have the same formal closure as the first two, and we do not pretend it does.
+**Sister projects:** [verified-circuits](https://github.com/brian-naughton/verified-circuits) and [certified-grokking](https://github.com/brian-naughton/certified-grokking) — see [The trilogy](#the-trilogy) above. The interval/exact core here descends from theirs; this repo is the distributional step, certifying one sample at a time where the first two could enumerate every input.
 
 ## Roadmap
 
@@ -221,7 +231,11 @@ This project was executed AI-first: Claude (Anthropic) was used as the researche
 
 **Peer review is genuinely requested** — AI review is not a substitute for it. It is especially welcome on the shared interval/exact core, the exact-real semantics, the finite-corpus population framing, the pre-registration discipline, and the φ₂_joint conformance interpretation. Corrections and failed replications are welcome as issues.
 
-I am also looking for AI research and engineering roles: [Brian Naughton on LinkedIn](https://www.linkedin.com/in/bnaughton/).
+## Contact
+
+Brian Naughton, independent researcher — <naughtonb@proton.me> · ORCID [0009-0008-3404-610X](https://orcid.org/0009-0008-3404-610X) · [LinkedIn](https://www.linkedin.com/in/bnaughton/).
+
+Corrections, questions, replication attempts, and collaboration are all welcome — by email or as an issue on this repository. I am also looking for AI research and engineering roles.
 
 ## Citing
 

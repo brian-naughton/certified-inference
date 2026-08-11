@@ -4,7 +4,11 @@ message: "If you use this work, please cite it."
 authors:
   - family-names: Naughton
     given-names: Brian
+    email: naughtonb@proton.me
+    affiliation: "Independent researcher"
+    orcid: "https://orcid.org/0009-0008-3404-610X"
 date-released: 2026-07-04
+repository-code: "https://github.com/brian-naughton/certified-inference"
 license: MIT
 abstract: >
   A pre-registered, independently verifiable statistical certificate for the
