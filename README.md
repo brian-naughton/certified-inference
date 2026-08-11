@@ -1,6 +1,7 @@
 ![certified-inference — pre-registered, exact-real, kernel-checked](assets/social-card.png)
 
 [![verify](https://github.com/brian-naughton/certified-inference/actions/workflows/verify.yml/badge.svg)](https://github.com/brian-naughton/certified-inference/actions/workflows/verify.yml)
+[![DOI](assets/doi-badge.svg)](https://doi.org/10.5281/zenodo.21893073)
 
 # Certified Inference
 

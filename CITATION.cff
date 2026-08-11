@@ -9,6 +9,7 @@ authors:
     orcid: "https://orcid.org/0009-0008-3404-610X"
 date-released: 2026-07-04
 repository-code: "https://github.com/brian-naughton/certified-inference"
+doi: 10.5281/zenodo.21893073
 license: MIT
 abstract: >
   A pre-registered, independently verifiable statistical certificate for the
