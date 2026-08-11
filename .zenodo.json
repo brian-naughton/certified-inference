@@ -1,0 +1,36 @@
+{
+  "title": "Certified Inference: a pre-registered, exact-real, kernel-checked next-token certificate for a pretrained LayerNorm language model",
+  "description": "<p>A pre-registered, independently verifiable statistical certificate for the exact-real next-token argmax of a real pretrained LayerNorm language model &mdash; the step where the input space is far too large to enumerate and the honest guarantee becomes statistical rather than exhaustive.</p><p>On a pinned finite TinyStories-1M token-id corpus C at context length 16, a with-replacement sample of 1000 prompts was pre-registered &mdash; seed and budget committed before any result was seen &mdash; and every one certified to have a unique full-vocabulary (50,257-token) exact-real next-token argmax at precision P &le; 256. By the stated one-sided Hoeffding bound, with confidence &ge; 97.5%, at least <strong>95.70%</strong> of C is certifiable under this engine and escalation policy. Every record is re-derived bit-identically by a torch-free checker that asserts full-corpus completeness, so a certificate cannot pass by silently omitting hard prompts.</p><p>The statistical wrapper is kernel-checked in Lean 4 with Mathlib (axioms <code>propext</code>, <code>Classical.choice</code>, <code>Quot.sound</code>). The kernel earned its keep: it caught a mis-specified tail direction in the project's own task brief before any number was stated. A replication under public pre-commitment (seed 20260704, freeze pushed before any certificate existed, with an OpenTimestamps receipt) reproduced the identical bound. A 300/300 certified calibration table and eight full-vocabulary GPT-2-small certificates are reported as profile and prestige confirmation, carrying no population language.</p><p>Scope is stated narrowly and deliberately: the claim quantifies over the pinned finite corpus C only, the certificate concerns the exact-real function of the published weights rather than binary32 execution, and the finite-corpus sampling bridge is audited provenance, not formalised. The wrapper is never described as certified end to end.</p><p>This is the third repository of three, continuing <a href=\"https://github.com/brian-naughton/verified-circuits\">verified-circuits</a> and <a href=\"https://github.com/brian-naughton/certified-grokking\">certified-grokking</a>. It does not have the same formal closure as the first two, and does not claim to.</p><p><em>This record archives the repository as of 11 August 2026. The work was first made public on 4 July 2026; the DOI was minted later, so the archive date and the original publication date differ.</em></p>",
+  "creators": [
+    {
+      "name": "Naughton, Brian",
+      "affiliation": "Independent researcher",
+      "orcid": "0009-0008-3404-610X"
+    }
+  ],
+  "license": "MIT",
+  "upload_type": "software",
+  "access_right": "open",
+  "keywords": [
+    "formal verification",
+    "interval arithmetic",
+    "language models",
+    "exact-real arithmetic",
+    "pre-registration",
+    "Hoeffding bound",
+    "Lean 4",
+    "AI safety"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/brian-naughton/verified-circuits",
+      "relation": "references",
+      "resource_type": "software"
+    },
+    {
+      "identifier": "https://github.com/brian-naughton/certified-grokking",
+      "relation": "references",
+      "resource_type": "software"
+    }
+  ]
+}
